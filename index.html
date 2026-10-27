@@ -241,7 +241,7 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
 
 <header>
   <div class="wrap hwrap">
-    <div class="brand"><span class="dots"><i></i><i></i><i></i></span>TEXT-MINING TOOLBOX <span class="sub">// IT Seminar II · Data Mining</span></div>
+    <div class="brand"><span class="dots"><i></i><i></i><i></i></span>TEXT-MINING TOOLBOX <span class="sub">// IT Seminar II / Data Mining</span></div>
     <button class="themed" id="theme">Theme</button>
   </div>
 </header>
@@ -255,9 +255,9 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
     <div class="ticker">
       <div class="thead">// incoming — unread (40,217)</div>
       <div class="rev">
-        <div class="r"><div class="who">Glovo · rider app</div><p>"Driver left my order at the wrong door and the app said 'delivered'."</p><div class="st">★★☆☆☆</div></div>
-        <div class="r"><div class="who">Zara · online</div><p>"Love the coat but sizing runs small, returned it twice."</p><div class="st">★★★☆☆</div></div>
-        <div class="r"><div class="who">BBVA · app</div><p>"New transfer screen is confusing, almost sent money to the wrong IBAN."</p><div class="st">★★☆☆☆</div></div>
+        <div class="r"><div class="who">Glovo / rider app</div><p>"Driver left my order at the wrong door and the app said 'delivered'."</p><div class="st">★★☆☆☆</div></div>
+        <div class="r"><div class="who">Zara / online</div><p>"Love the coat but sizing runs small, returned it twice."</p><div class="st">★★★☆☆</div></div>
+        <div class="r"><div class="who">BBVA / app</div><p>"New transfer screen is confusing, almost sent money to the wrong IBAN."</p><div class="st">★★☆☆☆</div></div>
       </div>
     </div>
 
@@ -294,6 +294,65 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
         <div class="replay"><button class="next show" id="replay">Play again</button></div>
       </div>
     </div>
+  </section>
+
+  <style>
+  /* ---- live vote section (prefixed lv- so it never clashes with the game/demos) ---- */
+  #livevote .lv-roles{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:18px}
+  .lv-rolebtn{font:inherit;font-family:var(--font-mono);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:9px 14px;cursor:pointer}
+  .lv-rolebtn:hover{background:var(--accent);color:#fff}
+  .lv-rolebtn.on{background:var(--ink);color:var(--paper)}
+  .lv-conn{font-family:var(--font-mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);margin-left:auto}
+  .lv-conn b{color:var(--cluster)} .lv-conn.off b{color:var(--accent)}
+  .lv-setup{border:3px solid var(--accent);background:var(--panel);padding:13px 15px;margin-top:16px;font-size:.88rem;line-height:1.5}
+  .lv-setup b{color:var(--accent)} .lv-setup code{font-family:var(--font-mono);font-size:.78rem;background:var(--paper);padding:1px 5px;border:1px solid var(--line)}
+  .lv-panel{margin-top:20px;border:3px solid var(--ink);background:var(--panel);box-shadow:8px 8px 0 var(--shadowc);padding:18px 16px}
+  .lv-qco{font-family:var(--font-mono);font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+  .lv-qt{font-family:var(--font-display);font-weight:800;font-size:clamp(1.25rem,4vw,1.9rem);margin:8px 0 14px;line-height:1.06}
+  .lv-opts{display:grid;gap:10px}
+  .lv-opt{display:flex;align-items:center;gap:11px;text-align:left;font:inherit;font-weight:700;font-size:1.02rem;color:var(--ink);background:var(--panel);border:2px solid var(--ink);padding:14px 15px;cursor:pointer;transition:transform .05s}
+  .lv-opt .lk{font-family:var(--font-mono);font-weight:700;font-size:.74rem;color:var(--ink-soft);width:20px;flex:0 0 auto}
+  .lv-opt:hover:not(:disabled){box-shadow:4px 4px 0 var(--accent);transform:translate(-2px,-2px)}
+  .lv-opt.mine{background:var(--accent);color:#fff;border-color:var(--ink)} .lv-opt.mine .lk{color:#fff}
+  .lv-opt.correct{background:var(--good-bg);border-color:var(--good)}
+  .lv-opt:disabled{cursor:default}
+  .lv-note{margin-top:15px;border:2px solid var(--line);background:var(--paper);padding:12px 14px;font-size:.9rem;color:var(--ink-soft)} .lv-note b{color:var(--ink)}
+  .lv-bars{display:grid;gap:9px}
+  .lv-bar{position:relative;border:2px solid var(--ink);background:var(--panel);overflow:hidden}
+  .lv-bar .lf{position:absolute;inset:0 auto 0 0;background:var(--accent);opacity:.22;transition:width .4s ease}
+  .lv-bar.correct .lf{background:var(--good);opacity:.28}
+  .lv-bar .lr{position:relative;display:flex;align-items:center;gap:11px;padding:14px 15px}
+  .lv-bar .lk{font-family:var(--font-mono);font-weight:700;font-size:.74rem;color:var(--ink-soft);width:20px;flex:0 0 auto}
+  .lv-bar .ll{font-weight:700;font-size:1rem;flex:1;min-width:0}
+  .lv-bar.correct .ll::after{content:" ✓";color:var(--good);font-family:var(--font-mono)}
+  .lv-bar .ln{font-family:var(--font-mono);font-weight:700;font-size:.9rem;flex:0 0 auto}
+  .lv-bar .lp{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-soft);width:44px;text-align:right;flex:0 0 auto}
+  .lv-ctrls{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px;border-top:2px solid var(--line);padding-top:16px}
+  .lv-btn{font:inherit;font-family:var(--font-mono);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:11px 15px;cursor:pointer}
+  .lv-btn:hover:not(:disabled){background:var(--accent);color:#fff} .lv-btn.primary{background:var(--accent);color:#fff}
+  .lv-btn.ghost{color:var(--ink-soft)} .lv-btn:disabled{opacity:.4;cursor:default}
+  .lv-why{margin-top:15px;border:3px solid var(--good);background:var(--good-bg);padding:13px 15px;font-size:.93rem;display:none;line-height:1.5} .lv-why.show{display:block}
+  .lv-why .wh{font-family:var(--font-mono);font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;color:var(--good);margin-bottom:6px}
+  .lv-meta{display:flex;flex-wrap:wrap;gap:16px;margin-top:13px;font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft)} .lv-meta b{color:var(--accent);font-size:1rem}
+  .lv-join{display:flex;gap:16px;align-items:center;flex-wrap:wrap;border:2px solid var(--ink);background:var(--paper);padding:14px;margin-bottom:16px}
+  .lv-join .lqr{width:120px;height:120px;background:#fff;border:2px solid var(--ink);display:grid;place-items:center;flex:0 0 auto}
+  .lv-join .lqr img,.lv-join .lqr canvas{width:108px !important;height:108px !important}
+  .lv-join .lu{flex:1;min-width:180px}
+  .lv-join .lu .lead{font-family:var(--font-mono);font-weight:700;font-size:.64rem;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);margin-bottom:5px}
+  .lv-join .lu .url{font-family:var(--font-mono);font-weight:700;font-size:.98rem;word-break:break-all}
+  .lv-panel:fullscreen{background:var(--bg);padding:5vmin;overflow:auto}
+  .lv-panel:fullscreen .lv-qt{font-size:clamp(1.9rem,4.2vw,3.1rem)}
+  .lv-panel:fullscreen .lv-bar .ll{font-size:1.3rem}
+  </style>
+
+  <section class="sec" id="livevote">
+    <div class="kick">// live vote</div>
+    <h2>Vote live — all together</h2>
+    <p class="intro">Study the method above, then vote. Go to the question your teacher calls out, tap your answer, and watch the results come up on the big screen.</p>
+    <div class="lv-roles">
+      <span class="lv-conn" id="lvConn">● <b>connecting…</b></span>
+    </div>
+    <div class="lv-panel" id="lvPanel"></div>
   </section>
 
   <section class="take">
@@ -799,6 +858,151 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
     ch.insertAdjacentHTML('beforeend',
       '<div class="cheat '+c.cls+'"><div class="if">IF // '+c.iff+'</div><div class="then"><span class="chip">'+c.tag+'</span>'+c.then+'</div></div>');
   });
+})();
+</script>
+
+<!-- ===== live vote (Upstash Redis REST; votes auto-delete after 24h; works on your own site) ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var UPSTASH = { url: "", token: "" };
+
+  var JOBS=["Classify","Cluster","Discover"];
+  var METHODS=["Naive Bayes","SVM","KNN","Decision Tree","Random Forest","Neural Networks","K-Means","LDA"];
+  var Q=[
+    {co:"Warm-up / name the job",t:"CaixaBank has 3,000 reviews already tagged bug / feature / praise and wants new ones tagged the same way.",opts:JOBS,ans:0,why:"Labels already exist — sort new text into known boxes."},
+    {co:"Warm-up / name the job",t:"El Corte Inglés has 80,000 tweets, no categories, and just wants to know what people are talking about.",opts:JOBS,ans:2,why:"No labels, and the goal is the themes themselves — Discover."},
+    {co:"Warm-up / name the job",t:"SEAT has warranty texts, no categories, and wants to find natural groups of problems to then investigate.",opts:JOBS,ans:1,why:"No labels; let the data form groups the team will name — Cluster."},
+    {co:"Idealista / Trust & Safety",t:"Flag likely-fake listings cheaply at huge volume, with lots of labelled fake / real examples.",opts:METHODS,ans:0,why:"Huge volume, labels in hand, cheap and fast — the spam-filter baseline."},
+    {co:"Freixenet / Reviews",t:"A small, clean, labelled set; you want the most accurate positive-vs-negative split. No need to explain it.",opts:METHODS,ans:1,why:"Small clean two-class data, accuracy over explainability — the widest clean margin."},
+    {co:"Support desk",t:"Tag each new ticket by finding the most similar already-labelled past tickets and copying their category.",opts:METHODS,ans:2,why:"“Most similar past cases” is the definition of nearest neighbours."},
+    {co:"Banco Sabadell / Compliance",t:"Auto-route complaints, and a regulator can demand the exact reason for any single decision.",opts:METHODS,ans:3,why:"Must explain every decision — a readable flowchart beats a black box."},
+    {co:"Milanuncios / Catalogue",t:"Sort millions of messy ads into 40 categories, top accuracy, no need to explain each decision.",opts:METHODS,ans:4,why:"Noisy, high-dimensional, many classes, accuracy first — a committee of trees."},
+    {co:"Travel platform / Global",t:"Translate reviews from six languages and catch negation like “no está nada mal”. Budget and GPUs are fine.",opts:METHODS,ans:5,why:"Translation and word-order nuance — the heavy machinery earns its cost."},
+    {co:"Mango / Marketing",t:"A year of unlabelled feedback; you want a few natural customer segments to name and target.",opts:METHODS,ans:6,why:"No labels; it forms the groups by similarity and the team names them."},
+    {co:"Vueling / Social",t:"Recurring themes across 120,000 unlabelled tweets, where one tweet can touch several topics at once.",opts:METHODS,ans:7,why:"No labels, and one text can belong to several themes at once — topic modelling."},
+    {co:"Debate / run last",t:"Routing complaints you must justify: Random Forest for accuracy, or a single Decision Tree? Which is right?",opts:METHODS,ans:3,why:"When you must explain each decision, interpretability beats the extra accuracy."}
+  ];
+
+  var panel=document.getElementById('lvPanel'), connEl=document.getElementById('lvConn'),
+      setupEl=document.getElementById('lvSetup'), roleBtns=document.querySelectorAll('.lv-rolebtn');
+  if(!panel) return;
+
+  var role = /^#(profesor|teacher|present)/i.test(location.hash) ? 'teacher' : 'student';
+  function markRole(){ roleBtns.forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-role')===role); }); }
+  roleBtns.forEach(function(b){ b.addEventListener('click',function(){ role=b.getAttribute('data-role'); markRole(); render(); }); });
+  markRole();
+
+  var MYID; try{ MYID=localStorage.getItem('tmv-id'); if(!MYID){MYID='v'+Math.random().toString(36).slice(2,10);localStorage.setItem('tmv-id',MYID);} }catch(e){ MYID='v'+Math.random().toString(36).slice(2,10); }
+  function setConn(ok,label){ connEl.classList.toggle('off',!ok); connEl.innerHTML='● <b>'+label+'</b>'; }
+
+  var configured = !!(UPSTASH.url && UPSTASH.token);
+  if(!configured){ setConn(false,'local demo'); } else { setConn(true,'ready'); }
+
+  var estado={q:0,revealed:false};   // local to THIS device (teacher calls out the number)
+  var votes={};                      // teacher: {key:choice} for the current question, from the store
+  var myVotes={};                    // student: {q:choice} this device has cast
+
+  function L(i){ return String.fromCharCode(65+i); }
+  function keyFor(q,id){ return 'tmv:'+q+':'+id; }
+  function prefix(q){ return 'tmv:'+q+':'; }
+
+  /* ---- Upstash Redis REST (one token in the page = classroom-level access; fine for a lesson) ---- */
+  function redis(cmd){
+    return fetch(UPSTASH.url,{method:'POST',headers:{'Authorization':'Bearer '+UPSTASH.token,'Content-Type':'application/json'},body:JSON.stringify(cmd)})
+      .then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.json(); }).then(function(j){ return j.result; });
+  }
+  function scanKeys(match){
+    var out=[]; function step(cur){ return redis(['SCAN',cur,'MATCH',match,'COUNT','500']).then(function(res){ var next=(res&&res[0])||'0', ks=(res&&res[1])||[]; out=out.concat(ks); if(next!=='0'&&next!==0) return step(next); return out; }); } return step('0');
+  }
+  function fetchVotes(){
+    if(!configured) return Promise.resolve();
+    return scanKeys(prefix(estado.q)+'*').then(function(keys){
+      if(!keys.length){ votes={}; return; }
+      return redis(['MGET'].concat(keys)).then(function(vals){ var m={}; keys.forEach(function(k,i){ if(vals[i]!=null) m[k]=+vals[i]; }); votes=m; });
+    }).then(function(){ setConn(true,'live'); }, function(){ setConn(false,'offline'); });
+  }
+  function castVote(choice){
+    myVotes[estado.q]=choice; render();
+    if(configured){ redis(['SET',keyFor(estado.q,MYID),String(choice),'EX','86400']).then(function(){ setConn(true,'sent'); }, function(){ setConn(false,'offline'); }); }
+    else { votes[MYID]=choice; }
+  }
+  function resetVotes(){
+    if(!configured){ votes={}; paintBars(); return; }
+    scanKeys(prefix(estado.q)+'*').then(function(keys){ if(keys.length) return redis(['DEL'].concat(keys)); }).then(function(){ votes={}; paintBars(); }, function(){});
+  }
+
+  /* ---- teacher poll: refresh the bars every 2 s (near real-time, light on the free tier) ---- */
+  var pollTimer=null;
+  function startPoll(){ if(pollTimer||!configured) return; pollTimer=setInterval(function(){ if(role==='teacher') fetchVotes().then(paintBars); },2000); }
+
+  function tally(){ var c=new Array(Q[estado.q].opts.length).fill(0); Object.keys(votes).forEach(function(k){ var v=votes[k]; if(v>=0&&v<c.length)c[v]++; }); return {c:c,total:c.reduce(function(a,b){return a+b;},0)}; }
+
+  function renderTeacher(){
+    var q=Q[estado.q], studentURL=location.origin+location.pathname+'#votar';
+    panel.innerHTML=
+      '<div class="lv-join"><div class="lqr" id="lvqr"></div><div class="lu"><div class="lead">// students open on their phone</div>'+
+      '<div class="url">'+studentURL.replace(/^https?:\/\//,'')+'</div></div></div>'+
+      '<div class="lv-qco">'+q.co+' / Question '+(estado.q+1)+' of '+Q.length+'</div>'+
+      '<h3 class="lv-qt">'+q.t+'</h3>'+
+      '<div class="lv-bars" id="lvBars"></div>'+
+      '<div class="lv-why" id="lvWhy"><div class="wh">✓ Answer — '+q.opts[q.ans]+'</div>'+q.why+'</div>'+
+      '<div class="lv-meta"><span>VOTES <b id="lvCount">0</b></span><span id="lvQn">Q '+(estado.q+1)+'/'+Q.length+'</span></div>'+
+      '<div class="lv-ctrls">'+
+        '<button class="lv-btn" id="lvPrev"'+(estado.q===0?' disabled':'')+'>◀ Prev</button>'+
+        '<button class="lv-btn primary" id="lvNext"'+(estado.q===Q.length-1?' disabled':'')+'>Next ▶</button>'+
+        '<button class="lv-btn" id="lvRev">'+(estado.revealed?'Hide answer':'Reveal answer')+'</button>'+
+        '<button class="lv-btn ghost" id="lvReset">Reset this vote</button>'+
+        '<button class="lv-btn ghost" id="lvFull">⛶ Full screen</button>'+
+      '</div>';
+    try{ if(window.QRCode){ new QRCode(document.getElementById('lvqr'),{text:studentURL,width:108,height:108,correctLevel:QRCode.CorrectLevel.M}); } }catch(e){}
+    function go(d){ estado.q=Math.min(Q.length-1,Math.max(0,estado.q+d)); estado.revealed=false; votes={}; renderTeacher(); fetchVotes().then(paintBars); }
+    document.getElementById('lvPrev').onclick=function(){ go(-1); };
+    document.getElementById('lvNext').onclick=function(){ go(1); };
+    document.getElementById('lvRev').onclick=function(){ estado.revealed=!estado.revealed; renderTeacher(); paintBars(); };
+    document.getElementById('lvReset').onclick=resetVotes;
+    document.getElementById('lvFull').onclick=function(){ if(panel.requestFullscreen) panel.requestFullscreen().catch(function(){}); };
+    paintBars();
+  }
+  function paintBars(){
+    if(role!=='teacher') return;
+    var barsEl=document.getElementById('lvBars'); if(!barsEl) return;
+    var q=Q[estado.q], r=tally(), html='';
+    q.opts.forEach(function(o,i){ var n=r.c[i], pct=r.total?Math.round(n/r.total*100):0, ok=estado.revealed&&i===q.ans;
+      html+='<div class="lv-bar'+(ok?' correct':'')+'"><div class="lf" style="width:'+(r.total?pct:0)+'%"></div>'+
+        '<div class="lr"><span class="lk">'+L(i)+'</span><span class="ll">'+o+'</span><span class="ln">'+n+'</span><span class="lp">'+(r.total?pct+'%':'')+'</span></div></div>'; });
+    barsEl.innerHTML=html;
+    var c=document.getElementById('lvCount'); if(c) c.textContent=r.total;
+    var w=document.getElementById('lvWhy'); if(w) w.classList.toggle('show',estado.revealed);
+  }
+
+  function renderStudent(){
+    var q=Q[estado.q], mine=(myVotes[estado.q]!=null)?myVotes[estado.q]:null, opts='';
+    q.opts.forEach(function(o,i){ var isMine=mine===i, ok=estado.revealed&&i===q.ans;
+      opts+='<button class="lv-opt'+(isMine?' mine':'')+(ok?' correct':'')+'" data-i="'+i+'"'+(estado.revealed?' disabled':'')+'><span class="lk">'+L(i)+'</span>'+o+'</button>'; });
+    var note;
+    if(estado.revealed){ var right=mine===q.ans; note='<div class="lv-note"><b>'+(mine==null?'No vote recorded.':(right?'✓ You were right!':'✗ Not this time.'))+'</b> Answer: <b>'+q.opts[q.ans]+'</b>. '+q.why+'</div>'; }
+    else if(mine!=null){ note='<div class="lv-note"><b>Answer sent: '+q.opts[mine]+'.</b> Tap another to change it, or "Show answer" to check.</div>'; }
+    else { note='<div class="lv-note">Go to the question your teacher calls out, then tap your answer.</div>'; }
+    panel.innerHTML=
+      '<div class="lv-qco">'+q.co+' / Question '+(estado.q+1)+' of '+Q.length+'</div>'+
+      '<h3 class="lv-qt">'+q.t+'</h3><div class="lv-opts">'+opts+'</div>'+note+
+      '<div class="lv-ctrls">'+
+        '<button class="lv-btn" id="lvsPrev"'+(estado.q===0?' disabled':'')+'>◀ Prev</button>'+
+        '<button class="lv-btn primary" id="lvsNext"'+(estado.q===Q.length-1?' disabled':'')+'>Next ▶</button>'+
+        '<button class="lv-btn ghost" id="lvsRev">'+(estado.revealed?'Hide answer':'Show answer')+'</button>'+
+      '</div>';
+    Array.prototype.forEach.call(panel.querySelectorAll('.lv-opt'),function(b){ b.onclick=function(){ if(estado.revealed)return; castVote(+b.getAttribute('data-i')); }; });
+    document.getElementById('lvsPrev').onclick=function(){ estado.q=Math.max(0,estado.q-1); estado.revealed=false; render(); };
+    document.getElementById('lvsNext').onclick=function(){ estado.q=Math.min(Q.length-1,estado.q+1); estado.revealed=false; render(); };
+    document.getElementById('lvsRev').onclick=function(){ estado.revealed=!estado.revealed; render(); };
+  }
+
+  function render(){ if(role==='teacher') renderTeacher(); else renderStudent(); }
+  function enter(){ render(); if(role==='teacher'){ startPoll(); fetchVotes().then(paintBars); } }
+  enter();
 })();
 </script>
 
