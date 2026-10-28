@@ -71,7 +71,11 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
 /* ---- hero ---- */
 .hero{padding-block:40px 30px}
 .hero h1{font-size:clamp(2.3rem,8vw,4.4rem);font-weight:800;line-height:.96}
-.hero .lede{margin-top:20px;font-size:1.1rem;color:var(--ink-soft);max-width:60ch;line-height:1.55}
+.hero .lede{margin-top:20px;font-size:1.1rem;color:var(--ink-soft);max-width:62ch;line-height:1.55}
+.hero .lede b{color:var(--ink)}
+.hnav{margin-top:24px;display:flex;flex-wrap:wrap;gap:8px}
+.hnav a{font-family:var(--font-mono);font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.03em;color:var(--ink);text-decoration:none;border:2px solid var(--ink);background:var(--panel);padding:7px 11px}
+.hnav a:hover{background:var(--accent);color:#fff}
 .hero .lede b{color:var(--ink)}
 .ticker{margin-top:28px;border:3px solid var(--ink);background:var(--panel);box-shadow:6px 6px 0 var(--shadowc)}
 .ticker .thead{font-family:var(--font-mono);font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;padding:8px 14px;border-bottom:2px solid var(--ink);background:var(--paper);color:var(--ink-soft)}
@@ -117,6 +121,11 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
 .tool .tx b{font-size:1rem;font-family:var(--font-display);font-weight:600}
 .tool .tx .role{display:block;margin-top:1px;font-family:var(--font-mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.03em;color:var(--accent)}
 .tool .tx p{font-size:.88rem;color:var(--ink-soft);margin-top:6px;line-height:1.5}
+.how{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px;display:grid;gap:7px}
+.how-row{display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:baseline;font-size:.82rem;color:var(--ink-soft);line-height:1.45}
+.how-lab{font-family:var(--font-mono);font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);padding-top:2px}
+.how-row code{font-family:var(--font-mono);font-size:.76rem;background:var(--paper);border:1px solid var(--line);padding:1px 4px;color:var(--ink);word-break:break-word}
+.how-row.na .how-lab{color:var(--ink-soft)}
 .howbtn{margin-top:12px;margin-left:51px;font:inherit;font-family:var(--font-mono);font-weight:700;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:7px 12px;cursor:pointer}
 .howbtn:hover{background:var(--accent);color:#fff}
 .howbtn[aria-expanded="true"]{background:var(--ink);color:var(--paper)}
@@ -242,15 +251,23 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
 <header>
   <div class="wrap hwrap">
     <div class="brand"><span class="dots"><i></i><i></i><i></i></span>TEXT-MINING TOOLBOX <span class="sub">// IT Seminar II / Data Mining</span></div>
-    <button class="themed" id="theme">Theme</button>
+    <a class="themed" id="lang" href="es.html">Español</a>
   </div>
 </header>
 
 <main class="wrap">
 
   <section class="hero">
-    <h1>You have 40,000<br>reviews. <span class="mark">Now what?</span></h1>
-    <p class="lede">Nobody is going to sit and read 40,000 reviews. A machine can read all of them in seconds, but it won't do anything useful until you tell it <b>which job</b> you want done. Here's the good news: every single algorithm on your exam exists to do just one of three jobs. Once you can see the three jobs, the scary names turn into tools you actually know when to reach for.</p>
+    <div class="kick" style="margin-bottom:14px">// text mining — the methods manual</div>
+    <h1>Make sense of any<br>pile of <span class="mark">text</span>.</h1>
+    <p class="lede">Text mining is how you turn thousands of reviews, tweets, emails or support tickets into answers, without reading them one by one. The catch: a machine won't do anything useful until you tell it <b>which job</b> you want done. The good news, and the whole point of this manual: every text-mining method you will meet — and every one on your exam — exists to do just one of three jobs. Learn the three jobs and the scary names turn into tools you know when to reach for.</p>
+    <nav class="hnav">
+      <a href="#methods">The 8 methods</a>
+      <a href="#choose">Choose the right one</a>
+      <a href="#realworld">In the real world</a>
+      <a href="#limits">Limits &amp; traps</a>
+      <a href="#recap">Exam recap</a>
+    </nav>
 
     <div class="ticker">
       <div class="thead">// incoming — unread (40,217)</div>
@@ -268,14 +285,14 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
     </div>
   </section>
 
-  <section class="sec">
+  <section class="sec" id="methods">
     <div class="kick">// the map</div>
-    <h2>The 8 tools, grouped by the job they do</h2>
-    <p class="intro">Six of the eight tools do the exact same job — <i>Classify</i>. They're not eight different problems, they're six personalities tackling one problem. One's fast, one's precise, one you can explain to your boss, one works like a committee that votes. The other two each do a job of their own. <b>Hit “Try it” on any tool</b> to play with a little model of how it actually works.</p>
+    <h2>The 8 text-mining methods, grouped by the job they do</h2>
+    <p class="intro">These are the core text-mining methods — the ones you will see in Python, Orange, Power BI and on the exam. Six of the eight do the exact same job, <i>Classify</i>: not eight different problems, six personalities tackling one. One is fast, one is precise, one you can explain to your boss, one works like a committee that votes. The other two each do a job of their own. <b>Hit “Try it” on any method</b> to play with a little model of how it works, and check the Colab / Orange / Power BI lines for how to run it.</p>
     <div class="jobs" id="jobs"></div>
   </section>
 
-  <section class="sec">
+  <section class="sec" id="choose">
     <div class="kick">// the game</div>
     <h2>Pick the right tool for the job</h2>
 
@@ -292,6 +309,48 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
         <p id="finaltext"></p>
         <div class="replay"><button class="next show" id="replay">Play again</button></div>
       </div>
+    </div>
+  </section>
+
+  <style>
+  .rules{margin-top:22px;border:3px solid var(--ink);background:var(--panel);box-shadow:6px 6px 0 var(--shadowc)}
+  .rule{padding:14px 16px;border-bottom:2px solid var(--line)}
+  .rule:last-child{border-bottom:none}
+  .rule .rh{font-family:var(--font-display);font-weight:600;font-size:1.04rem;margin-bottom:4px;display:flex;gap:10px;align-items:baseline}
+  .rule .rn{font-family:var(--font-mono);font-weight:700;font-size:.72rem;color:var(--accent);flex:0 0 auto}
+  #limits .rule .rn{color:var(--bad)}
+  .rule p{font-size:.9rem;color:var(--ink-soft);line-height:1.5;margin:0}
+  </style>
+
+  <section class="sec" id="realworld">
+    <div class="kick">// in the real world</div>
+    <h2>Using text mining in real business (and life)</h2>
+    <p class="intro">Choosing the method is half the job. These are the habits that separate a demo from something a business can actually trust.</p>
+    <div class="rules">
+      <div class="rule"><div class="rh"><span class="rn">01</span>Start simple, then climb</div><p>Run a quick baseline (Naive Bayes) first, and only reach for Random Forest or a neural net if it is not good enough. A simple model you understand beats a fancy one you don't.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">02</span>No labels, no classifying</div><p>With no labelled examples you cannot classify yet. Cluster or run topic modelling to understand the data first, then label a sample and go from there.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">03</span>Clean the text first</div><p>Lowercase it, strip stopwords and weight words (TF-IDF) before any method. Garbage in, garbage out — most of the real work is preparing the text.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">04</span>Match the method to the stakes</div><p>For regulated or customer-facing decisions, a readable Decision Tree you can defend beats a more accurate black box nobody can explain.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">05</span>Always test on unseen data</div><p>Split into train and test. A model that scores 99% on the data it already saw may fall apart on next week's new reviews.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">06</span>Keep a human in the loop</div><p>The machine proposes; a person names the clusters, reads the topics and signs off on the decisions. It is a co-pilot, not an autopilot.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">07</span>You choose the method, not the tool</div><p>Python, Orange or an AI assistant will all obey. You decide which method fits the situation, and you check the output actually did the job you meant.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">08</span>Models go stale</div><p>Language, products and slang keep changing, so retrain now and then or your classifier quietly drifts away from reality.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="limits">
+    <div class="kick">// limits &amp; traps</div>
+    <h2>What text mining can't do (and where it bites)</h2>
+    <p class="intro">Knowing the limits is exam material and career insurance in equal measure. These are the traps to name before someone else does.</p>
+    <div class="rules">
+      <div class="rule"><div class="rh"><span class="rn">!</span>Garbage in, garbage out</div><p>Messy, biased or tiny datasets give messy, biased or unreliable results. The method cannot rescue bad data.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>Bias is inherited</div><p>A model absorbs the prejudices baked into its training text, so audit it before you trust it on real people.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>Sarcasm and irony are hard</div><p>"Great, another delay" fools almost every method except careful neural models. Short, ambiguous text is the hardest of all.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>Groups and topics need a human</div><p>The machine finds clusters and themes but does not know what they mean. You interpret them and give them a name.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>Correlation is not causation</div><p>Two words appearing together does not explain why, and never proves that one causes the other. Stay sceptical of tidy stories.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>Language and domain shift</div><p>A model trained on Spanish tweets will not work on English legal contracts without retraining. Context does not transfer for free.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>Accuracy can cost explainability</div><p>The best-scoring model is often the hardest to justify. That is a real trade-off to decide on purpose, not a free lunch.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>Text is personal data</div><p>Mining reviews, emails or chats carries legal and ethical limits (GDPR, consent). Not everything you can do, you may do.</p></div>
     </div>
   </section>
 
@@ -347,16 +406,14 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
   <section class="sec" id="livevote">
     <div class="kick">// live vote</div>
     <h2>Vote live — all together</h2>
-    <p class="intro">Study the method above, then vote. Go to the question your teacher calls out, tap your answer, and watch the results come up on the big screen.</p>
     <div class="lv-roles">
       <span class="lv-conn" id="lvConn">● <b>connecting…</b></span>
     </div>
     <div class="lv-panel" id="lvPanel"></div>
   </section>
 
-  <section class="take">
-    <h2>The one slide to remember</h2>
-    <p class="intro">If you only keep one thing from today, keep this. Start from the question, name the job, then let the detail in the case pick which personality you reach for.</p>
+  <section class="take" id="recap">
+    <h2>Exam recap</h2>
     <div class="cheats" id="cheats"></div>
   </section>
 
@@ -365,14 +422,7 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
 <script>
 (function(){
   "use strict";
-  var root=document.documentElement, tb=document.getElementById('theme');
-  function applyTheme(nx){ root.setAttribute('data-theme',nx); try{localStorage.setItem('tmt-theme',nx);}catch(e){} redrawDemos(); }
-  try{var s=localStorage.getItem('tmt-theme'); if(s)root.setAttribute('data-theme',s);}catch(e){}
-  tb.addEventListener('click',function(){
-    var cur=root.getAttribute('data-theme');
-    var mql=window.matchMedia('(prefers-color-scheme:dark)').matches;
-    applyTheme(cur ? (cur==='dark'?'light':'dark') : (mql?'light':'dark'));
-  });
+  var root=document.documentElement;
   function tok(n){return getComputedStyle(root).getPropertyValue('--'+n).trim();}
   function C(){return {ink:tok('ink'),soft:tok('ink-soft'),line:tok('line'),panel:tok('panel'),
     good:tok('good'),bad:tok('bad'),accent:tok('accent'),blue:tok('classify'),green:tok('cluster'),purple:tok('discover')};}
@@ -380,25 +430,58 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
   /* ===== data: the 8 tools ===== */
   var JOBS=[
     {cls:'classify',tag:'Job 1 / Classify',title:'Sort text into boxes you already defined',plain:'You already have the categories in mind and some labelled examples. The job is sorting new text into boxes you\'ve drawn yourself.',tools:[
-      {id:'nb',b:'NB',n:'Naive Bayes',role:'The fast baseline',d:'The simplest method that genuinely works. It learns which words tend to appear in each category: if "refund", "late" and "broken" keep showing up in negative reviews, a new review full of those words is probably negative too. It only counts words and combines the odds, so it is fast and cheap. Use it as your first attempt: it gives a solid baseline in seconds, and only then do you decide whether a heavier method is worth it. The classic example is your email spam filter.'},
-      {id:'svm',b:'SVM',n:'Support Vector Machines',role:'The sharp separator',d:'Picture every review as a dot, with similar ones sitting close together. SVM draws the dividing line between the two groups so the empty gap on each side is as wide as possible, the clearest border you can get. That wide margin is why it tends to be very accurate, especially on text and on smaller, clean datasets. The trade-off: it gives you the decision but not an easy reason for it, so it is a weak choice when you must explain each case.'},
-      {id:'knn',b:'KNN',n:'K-Nearest Neighbours',role:'The lookalike finder',d:'It barely learns anything in advance. To label a new review it looks at the handful of most similar reviews you have already labelled, its nearest neighbours, and copies the majority label: "this one looks like five angry reviews, so it is angry". The "K" is simply how many neighbours get to vote. It is intuitive and perfect for "find me cases like this one", but it gets slow when there is a huge amount of past data to compare against.'},
-      {id:'dt',b:'DT',n:'Decision Tree',role:'The one you can explain',d:'A chain of simple yes/no questions that ends in a label: does it mention "refund"? then, does it mention "late"? then negative. Its real strength is transparency: you can follow and read out loud exactly why it reached each decision. That makes it the right pick whenever someone (a manager, a regulator, a customer) can ask "why?". On its own it is usually a little less accurate than the heavier methods.'},
-      {id:'rf',b:'RF',n:'Random Forest',role:'The committee',d:'Instead of trusting one flowchart, it builds hundreds of slightly different decision trees and lets them vote; the majority wins. The crowd cancels out the mistakes of any single tree, so it is clearly more accurate and more robust on messy, real-world text. The cost is that you lose the clean "here is exactly why" of a single tree, because hundreds of trees voting is hard to sum up in one reason.'},
-      {id:'nn',b:'NN',n:'Neural Networks',role:'The heavy machinery',d:'The heavy machinery, from the same family as translation tools and ChatGPT. Unlike the others it pays attention to word order and context, so it catches what a word-counter misses: "not bad at all" is positive, sarcasm, meaning across languages. The price is that it needs a lot of data and computing power, so it is overkill for plain sorting and only worth it when the meaning is genuinely subtle.'}
+      {id:'nb',b:'NB',n:'Naive Bayes',role:'The fast baseline',d:'Imagine sorting your inbox into "spam" and "normal". Naive Bayes simply learns which words show up a lot in each pile: an email full of "free", "winner" and "click now" looks like the spam pile, so it guesses spam. It literally counts words and bets on the most likely pile. That makes it very fast, very cheap, and surprisingly good for something so simple. Use it as your first try whenever you already have labelled examples, to get a result in seconds before reaching for anything heavier.'},
+      {id:'svm',b:'SVM',n:'Support Vector Machines',role:'The sharp separator',d:'Picture all your reviews as dots on a table, the happy ones clumped on one side and the angry ones on the other. SVM finds the straight line that separates the two groups with the widest empty space on each side, the clearest border you could draw. A new review falls on one side of that line and takes that label. Because the border is so clean, it tends to be very accurate, especially when you do not have a huge amount of data. The catch: it gives you the answer but not an easy "because of this".'},
+      {id:'knn',b:'KNN',n:'K-Nearest Neighbours',role:'The lookalike finder',d:'The idea you already use every day: to judge something new, look at the things most similar to it. To label a new review, KNN finds the handful of past reviews that look most like it (its closest "neighbours") and copies whatever most of them were labelled. If the five most similar reviews were all angry, the new one is probably angry too. The "K" is simply how many neighbours get to vote. Intuitive and easy, but it gets slow when there are millions of past reviews to compare against.'},
+      {id:'dt',b:'DT',n:'Decision Tree',role:'The one you can explain',d:'A decision tree is just a flowchart of yes/no questions, like a quiz. Does the review mention "refund"? If yes, does it also mention "late"? If yes, label it negative. You follow the branches until you reach an answer at the bottom. Its superpower is that you can show the exact path and say "it is negative because it mentioned refund and late", which is perfect when a boss, a customer or a regulator asks why. On its own it is usually a little less accurate than the heavier methods.'},
+      {id:'rf',b:'RF',n:'Random Forest',role:'The committee',d:'One flowchart can be wrong, so Random Forest builds hundreds of slightly different trees and lets them vote, like asking a whole panel instead of a single person. The mistakes of any one tree get outvoted by the crowd, so the answer is more accurate and more reliable, especially on messy real-world text. The trade-off: with hundreds of trees voting, you can no longer point to one simple reason the way a single tree lets you.'},
+      {id:'nn',b:'NN',n:'Neural Networks',role:'The heavy machinery',d:'This is the powerful "deep learning" family, the same kind of technology behind Google Translate and ChatGPT. Unlike the simpler methods, it pays attention to the order of the words and the context, so it understands that "not bad at all" is actually positive, or that a sentence is sarcastic, and it can work across languages. The price is that it needs lots of examples and a lot of computing power, so it is overkill for simple tasks and only worth it when the meaning is genuinely subtle.'}
     ]},
     {cls:'cluster',tag:'Job 2 / Cluster',title:'Find groups nobody told you about',plain:'No labels, no boxes. You want the data to reveal its own natural segments, and then you decide what to call them.',tools:[
-      {id:'km',b:'KM',n:'K-Means',role:'The grouper',d:'You tell it how many groups you want (that number is the "K"), and it places the centre of each group, assigns every review to the nearest centre, and repeats until the groups settle. Nobody labels anything: the machine proposes the groups and you look inside each one and give it a name ("these are the delivery complaints"). Use it when you suspect there are natural segments but have not defined them yet.'}
+      {id:'km',b:'KM',n:'K-Means',role:'The grouper',d:'Say you have a big box of mixed reviews with no labels at all. K-Means groups them by similarity: you tell it how many groups you want (that number is the "K", say 4) and it drops every review into the nearest group, nudging the groups until they settle. Then you open each group and see what they share, for example "this whole group is about late deliveries". The machine makes the groups; you give them names. Great when you suspect there are natural segments but nobody has defined them yet.'}
     ]},
     {cls:'discover',tag:'Job 3 / Discover topics',title:'Surface the hidden themes in the text',plain:'You don\'t want to sort or group — you just want to know what a mountain of text is actually about.',tools:[
-      {id:'lda',b:'LDA',n:'Latent Dirichlet Allocation',role:'The theme detector',d:'Topic modelling. Give it thousands of documents and it surfaces the hidden themes running through them, each described by the words that travel together ("late, order, driver, cold" points to deliveries). It does not force each document into one box; it treats every document as a mixture of several topics at once. It will not read the pile for you, but it tells you what it is about and what is worth reading.'}
+      {id:'lda',b:'LDA',n:'Latent Dirichlet Allocation',role:'The theme detector',d:'LDA answers "what is all this text about?" without you reading it. Give it thousands of documents and it finds the hidden themes running through them, each shown as a cluster of words that keep appearing together: for example "late, order, driver, cold" clearly points to deliveries. The clever part is that it treats each document as a mix of themes, not just one (a single review can be 70% about delivery and 30% about price). It will not read the pile for you, but it tells you what it is about and what is worth a closer look.'}
     ]}
   ];
+  var HOW={
+    nb:{colab:'<code>from sklearn.naive_bayes import MultinomialNB</code>, then <code>MultinomialNB().fit(X, y)</code> on a CountVectorizer matrix and <code>.predict(new)</code>.',
+        orange:'Corpus → Bag of Words → Naive Bayes → Test & Score.',
+        powerbi:'No built-in classifier. Use AI Insights for ready-made sentiment, or a Python/R visual.'},
+    svm:{colab:'<code>from sklearn.svm import LinearSVC</code>, then <code>LinearSVC().fit(X, y)</code> on your TF-IDF matrix.',
+        orange:'Bag of Words → SVM → Test & Score.',
+        powerbi:'Not built in; run it inside a Python/R visual.'},
+    knn:{colab:'<code>from sklearn.neighbors import KNeighborsClassifier</code>, then <code>KNeighborsClassifier(n_neighbors=5).fit(X, y)</code>.',
+        orange:'Bag of Words → kNN → Test & Score.',
+        powerbi:'Not built in; Python/R visual.'},
+    dt:{colab:'<code>from sklearn.tree import DecisionTreeClassifier</code>, <code>.fit(X, y)</code>, then <code>plot_tree()</code> to see the rules.',
+        orange:'Tree → Tree Viewer shows the flowchart.',
+        powerbi:'The Decomposition Tree visual gives a similar explain-by-splits view; or a Python/R visual.'},
+    rf:{colab:'<code>from sklearn.ensemble import RandomForestClassifier</code>, then <code>RandomForestClassifier().fit(X, y)</code>.',
+        orange:'Bag of Words → Random Forest → Test & Score.',
+        powerbi:'Not native; Python/R visual. The Key Influencers visual gives a lighter "what drives this".'},
+    nn:{colab:'Quick start <code>from sklearn.neural_network import MLPClassifier</code>; for real deep models use Keras or Hugging Face transformers.',
+        orange:'Neural Network widget for a basic net; deep models need Python.',
+        powerbi:'Not native; use AI Insights (sentiment, key phrases) or a Python visual.'},
+    km:{colab:'<code>from sklearn.cluster import KMeans</code>, then <code>KMeans(n_clusters=4).fit(X)</code>; read <code>.labels_</code>.',
+        orange:'k-Means widget → Silhouette Plot to choose k.',
+        powerbi:'Scatter chart → "Automatically find clusters", or a Python/R visual.'},
+    lda:{colab:'<code>from sklearn.decomposition import LatentDirichletAllocation</code> (or gensim) → <code>.fit(X)</code> on word counts; read the top words per topic.',
+        orange:'Topic Modelling widget (LDA) → Word Cloud per topic.',
+        powerbi:'Not native; run gensim/sklearn in a Python visual, or use AI Insights key phrases as a lighter option.'}
+  };
+  function howHTML(id){ var h=HOW[id]; if(!h) return '';
+    return '<div class="how">'+
+      '<div class="how-row"><span class="how-lab">Colab</span><span>'+h.colab+'</span></div>'+
+      '<div class="how-row"><span class="how-lab">Orange</span><span>'+h.orange+'</span></div>'+
+      '<div class="how-row na"><span class="how-lab">Power BI</span><span>'+h.powerbi+'</span></div>'+
+    '</div>';
+  }
   var jobsEl=document.getElementById('jobs');
   JOBS.forEach(function(j){
     var tools=j.tools.map(function(t){
       return '<div class="tool"><div class="tool-head"><div class="badge">'+t.b+'</div>'+
-        '<div class="tx"><b>'+t.n+'</b><span class="role">'+t.role+'</span><p>'+t.d+'</p></div></div>'+
+        '<div class="tx"><b>'+t.n+'</b><span class="role">'+t.role+'</span><p>'+t.d+'</p>'+howHTML(t.id)+'</div></div>'+
         '<button class="howbtn" data-demo="'+t.id+'" aria-expanded="false">▸ Try it — how it works</button>'+
         '<div class="demo" id="demo-'+t.id+'" hidden></div></div>';
     }).join('');
@@ -942,9 +1025,7 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
   function renderTeacher(){
     var q=Q[estado.q], studentURL=location.origin+location.pathname+'#votar';
     panel.innerHTML=
-      '<div class="lv-join"><div class="lqr" id="lvqr"></div><div class="lu"><div class="lead">// students open on their phone</div>'+
-      '<div class="url">'+studentURL.replace(/^https?:\/\//,'')+'</div></div></div>'+
-      '<div class="lv-qco">'+q.co+' / Question '+(estado.q+1)+' of '+Q.length+'</div>'+
+      '<div class="lv-join"><div class="lqr" id="lvqr"></div></div>'+
       '<h3 class="lv-qt">'+q.t+'</h3>'+
       '<div class="lv-bars" id="lvBars"></div>'+
       '<div class="lv-why" id="lvWhy"><div class="wh">✓ Answer — '+q.opts[q.ans]+'</div>'+q.why+'</div>'+
@@ -984,7 +1065,7 @@ header{border-bottom:3px solid var(--ink);background:var(--paper)}
     var note;
     if(estado.revealed){ var right=mine===q.ans; note='<div class="lv-note"><b>'+(mine==null?'No vote recorded.':(right?'✓ You were right!':'✗ Not this time.'))+'</b> Answer: <b>'+q.opts[q.ans]+'</b>. '+q.why+'</div>'; }
     else if(mine!=null){ note='<div class="lv-note"><b>Answer sent: '+q.opts[mine]+'.</b> Tap another option to change it. We’ll check the answer together on the screen.</div>'; }
-    else { note='<div class="lv-note">Go to the question your teacher calls out, then tap your answer.</div>'; }
+    else { note=''; }
     panel.innerHTML=
       '<div class="lv-qco">'+q.co+' / Question '+(estado.q+1)+' of '+Q.length+'</div>'+
       '<h3 class="lv-qt">'+q.t+'</h3><div class="lv-opts">'+opts+'</div>'+note+

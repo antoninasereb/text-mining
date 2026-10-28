@@ -1,0 +1,1086 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>The Text-Mining Toolbox</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Hanken+Grotesque:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: a riso-print control panel — flat spot inks, hard rules, offset block-shadows, mono labels. Three jobs = three inks. No soft shadows, no rounded cards. */
+:root{
+  --bg:#e8e6dd; --paper:#f4f2ea; --panel:#ffffff;
+  --ink:#131310; --ink-soft:#5c594f; --line:#131310;
+  --accent:#ec4a24;              /* riso orange-red — interaction */
+  --classify:#2238c9;            /* riso blue */
+  --cluster:#0e8f4e;             /* riso green */
+  --discover:#bd2c8e;            /* riso magenta */
+  --on-spot:#ffffff;
+  --good:#0e8f4e; --bad:#d62516;
+  --good-bg:#d9eede; --bad-bg:#f6ddd9;
+  --soft-bg:#efece4;
+  --shadowc:#131310;
+  --font-display:"Bricolage Grotesque",Arial,sans-serif;
+  --font-body:"Hanken Grotesque",system-ui,sans-serif;
+  --font-mono:"Space Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#100f0c; --paper:#1a1915; --panel:#1f1e19;
+  --ink:#f3f0e6; --ink-soft:#a7a293; --line:#4a473c;
+  --accent:#ff6a44;
+  --classify:#7d92ff; --cluster:#3dc47e; --discover:#f06bc0;
+  --on-spot:#131310;
+  --good:#3dc47e; --bad:#ff6a58;
+  --good-bg:#15301f; --bad-bg:#331713;
+  --soft-bg:#13120d;
+  --shadowc:#000000;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#100f0c; --paper:#1a1915; --panel:#1f1e19;
+  --ink:#f3f0e6; --ink-soft:#a7a293; --line:#4a473c;
+  --accent:#ff6a44;
+  --classify:#7d92ff; --cluster:#3dc47e; --discover:#f06bc0;
+  --on-spot:#131310;
+  --good:#3dc47e; --bad:#ff6a58;
+  --good-bg:#15301f; --bad-bg:#331713;
+  --soft-bg:#13120d;
+  --shadowc:#000000;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.02;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+.mono{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.02em}
+.mark{background:var(--accent);color:#fff;padding:0 .12em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+
+/* ---- header ---- */
+header{border-bottom:3px solid var(--ink);background:var(--paper)}
+.hwrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:13px}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--font-mono);font-weight:700;font-size:.78rem;letter-spacing:.02em;text-transform:uppercase}
+.brand .dots{display:flex;gap:3px}
+.brand .dots i{width:11px;height:11px;display:block}
+.brand .dots i:nth-child(1){background:var(--classify)} .brand .dots i:nth-child(2){background:var(--cluster)} .brand .dots i:nth-child(3){background:var(--discover)}
+.brand .sub{display:none;color:var(--ink-soft);font-weight:400}
+@media(min-width:640px){.brand .sub{display:inline}}
+.themed{appearance:none;border:2px solid var(--ink);background:var(--panel);color:var(--ink);font-family:var(--font-mono);font-weight:700;font-size:.66rem;letter-spacing:.04em;text-transform:uppercase;padding:7px 12px;cursor:pointer}
+.themed:hover{background:var(--accent);color:#fff;border-color:var(--ink)}
+
+/* ---- hero ---- */
+.hero{padding-block:40px 30px}
+.hero h1{font-size:clamp(2.3rem,8vw,4.4rem);font-weight:800;line-height:.96}
+.hero .lede{margin-top:20px;font-size:1.1rem;color:var(--ink-soft);max-width:62ch;line-height:1.55}
+.hero .lede b{color:var(--ink)}
+.hnav{margin-top:24px;display:flex;flex-wrap:wrap;gap:8px}
+.hnav a{font-family:var(--font-mono);font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.03em;color:var(--ink);text-decoration:none;border:2px solid var(--ink);background:var(--panel);padding:7px 11px}
+.hnav a:hover{background:var(--accent);color:#fff}
+.hero .lede b{color:var(--ink)}
+.ticker{margin-top:28px;border:3px solid var(--ink);background:var(--panel);box-shadow:6px 6px 0 var(--shadowc)}
+.ticker .thead{font-family:var(--font-mono);font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;padding:8px 14px;border-bottom:2px solid var(--ink);background:var(--paper);color:var(--ink-soft)}
+.rev{display:grid;grid-template-columns:1fr;gap:0}
+@media(min-width:620px){.rev{grid-template-columns:1fr 1fr 1fr}}
+.rev .r{padding:13px 14px;border-bottom:2px solid var(--ink)}
+@media(min-width:620px){.rev .r{border-bottom:none;border-right:2px solid var(--ink)} .rev .r:last-child{border-right:none}}
+.rev .r:last-child{border-bottom:none}
+.rev .who{font-family:var(--font-mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.03em;color:var(--accent);margin-bottom:6px}
+.rev .r p{font-size:.9rem}
+.rev .st{font-family:var(--font-mono);font-size:.78rem;margin-top:7px;color:var(--ink-soft)}
+
+.three{margin-top:16px;display:grid;gap:14px}
+@media(min-width:620px){.three{grid-template-columns:repeat(3,1fr)}}
+.q{border:3px solid var(--ink);background:var(--panel);padding:0}
+.q .cap{padding:9px 13px;border-bottom:3px solid var(--ink);color:var(--on-spot);font-family:var(--font-mono);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;display:flex;justify-content:space-between;align-items:center}
+.q.c1 .cap{background:var(--classify)} .q.c2 .cap{background:var(--cluster)} .q.c3 .cap{background:var(--discover)}
+.q .body{padding:13px}
+.q b{display:block;font-family:var(--font-display);font-weight:600;font-size:1.02rem;margin-bottom:5px}
+.q small{color:var(--ink-soft);font-size:.86rem;display:block;line-height:1.45}
+
+/* ---- section heads ---- */
+.sec{padding-block:40px 6px}
+.kick{font-family:var(--font-mono);font-weight:700;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:var(--accent)}
+.sec h2{font-size:clamp(1.7rem,5vw,2.5rem);font-weight:800;margin-top:10px}
+.sec .intro{margin-top:14px;color:var(--ink-soft);max-width:66ch;font-size:1rem;line-height:1.55}
+.sec .intro i{color:var(--ink);font-style:italic}
+
+/* ---- map of 8 tools ---- */
+.jobs{margin-top:26px;display:grid;gap:26px}
+.job{border:3px solid var(--ink);background:var(--panel);box-shadow:6px 6px 0 var(--shadowc)}
+.job .cap{padding:14px 16px;border-bottom:3px solid var(--ink);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;color:var(--on-spot)}
+.job.classify .cap{background:var(--classify)} .job.cluster .cap{background:var(--cluster)} .job.discover .cap{background:var(--discover)}
+.job .cap .tag{font-family:var(--font-mono);font-weight:700;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;border:2px solid var(--on-spot);padding:3px 8px}
+.job .cap h3{font-size:1.2rem;font-weight:600;color:var(--on-spot)}
+.job .cap .plain{flex-basis:100%;font-family:var(--font-body);font-weight:500;font-size:.9rem;color:var(--on-spot);opacity:.92;letter-spacing:0;text-transform:none;line-height:1.45}
+.tools{display:block}
+.tool{padding:15px 16px;border-bottom:2px solid var(--line)}
+.tool:last-child{border-bottom:none}
+.tool-head{display:flex;gap:13px;align-items:flex-start}
+.tool .badge{flex:0 0 auto;width:38px;height:38px;display:grid;place-items:center;font-family:var(--font-mono);font-weight:700;font-size:.72rem;border:2px solid var(--ink);color:var(--on-spot)}
+.job.classify .tool .badge{background:var(--classify)} .job.cluster .tool .badge{background:var(--cluster)} .job.discover .tool .badge{background:var(--discover)}
+.tool .tx b{font-size:1rem;font-family:var(--font-display);font-weight:600}
+.tool .tx .role{display:block;margin-top:1px;font-family:var(--font-mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.03em;color:var(--accent)}
+.tool .tx p{font-size:.88rem;color:var(--ink-soft);margin-top:6px;line-height:1.5}
+.how{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px;display:grid;gap:7px}
+.how-row{display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:baseline;font-size:.82rem;color:var(--ink-soft);line-height:1.45}
+.how-lab{font-family:var(--font-mono);font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);padding-top:2px}
+.how-row code{font-family:var(--font-mono);font-size:.76rem;background:var(--paper);border:1px solid var(--line);padding:1px 4px;color:var(--ink);word-break:break-word}
+.how-row.na .how-lab{color:var(--ink-soft)}
+.howbtn{margin-top:12px;margin-left:51px;font:inherit;font-family:var(--font-mono);font-weight:700;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:7px 12px;cursor:pointer}
+.howbtn:hover{background:var(--accent);color:#fff}
+.howbtn[aria-expanded="true"]{background:var(--ink);color:var(--paper)}
+@media(max-width:559px){.howbtn{margin-left:0}}
+
+/* ---- demos ---- */
+.demo{margin-top:14px;border:2px solid var(--ink);background:var(--soft-bg);padding:14px}
+.demo .dlead{font-size:.9rem;color:var(--ink-soft);margin-bottom:12px;line-height:1.5}
+.demo .dlead b{color:var(--ink)}
+.demo canvas{display:block;width:100%;max-width:520px;height:auto;border:2px solid var(--ink);background:var(--panel);touch-action:none}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-top:12px}
+.ctrls .ctl{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft)}
+.ctrls input[type=range]{accent-color:var(--accent);width:120px}
+.dbtn{font:inherit;font-family:var(--font-mono);font-weight:700;font-size:.68rem;text-transform:uppercase;letter-spacing:.03em;background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:7px 12px;cursor:pointer}
+.dbtn:hover{background:var(--accent);color:#fff}
+.dbtn.primary{background:var(--accent);color:#fff}
+.dreadout{font-family:var(--font-mono);font-size:.82rem;margin-top:12px;padding:8px 11px;border:2px solid var(--ink);background:var(--panel);display:inline-block}
+.dreadout .pos{color:var(--good);font-weight:700} .dreadout .neg{color:var(--bad);font-weight:700}
+/* NB meter */
+.chiprow{display:flex;flex-wrap:wrap;gap:7px;margin:4px 0 2px}
+.chip{font:inherit;font-size:.82rem;font-weight:600;border:2px solid var(--ink);background:var(--panel);color:var(--ink);padding:5px 10px;cursor:pointer}
+.chip.on.pos{background:var(--good-bg);border-color:var(--good)} .chip.on.neg{background:var(--bad-bg);border-color:var(--bad)}
+.meter{position:relative;height:30px;border:2px solid var(--ink);background:var(--panel);margin-top:14px;display:flex}
+.meter .half{flex:1;display:flex;align-items:center;font-family:var(--font-mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);padding:0 8px}
+.meter .half.r{justify-content:flex-end}
+.meter .mid{position:absolute;top:-3px;bottom:-3px;left:50%;width:2px;background:var(--ink-soft)}
+.meter .needle{position:absolute;top:-5px;bottom:-5px;width:4px;background:var(--accent);transition:left .25s ease;transform:translateX(-50%)}
+/* decision tree */
+.treewrap{display:grid;gap:0}
+.tnode{border:2px solid var(--ink);background:var(--panel);padding:9px 12px;font-size:.88rem;font-weight:600}
+.tnode.q{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.tnode.active{box-shadow:4px 4px 0 var(--accent)}
+.tnode.leaf{text-align:center;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.03em}
+.tnode.leaf.pos{background:var(--good-bg);border-color:var(--good);color:var(--ink)}
+.tnode.leaf.neg{background:var(--bad-bg);border-color:var(--bad);color:var(--ink)}
+.tnode.leaf.neu{background:var(--soft-bg)}
+.tedge{height:14px;width:2px;background:var(--ink);margin:0 auto}
+.ybtns{display:flex;gap:7px}
+.ybtn{font:inherit;font-family:var(--font-mono);font-weight:700;font-size:.64rem;text-transform:uppercase;border:2px solid var(--ink);background:var(--panel);padding:5px 10px;cursor:pointer}
+.ybtn:hover{background:var(--accent);color:#fff}
+.ybtn.chosen{background:var(--ink);color:var(--paper)}
+/* forest */
+.forest{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0}
+.ftree{width:20px;height:24px;border:1.5px solid var(--ink);display:grid;place-items:center;font-size:11px;line-height:1}
+.ftree.pos{background:var(--good)} .ftree.neg{background:var(--bad)}
+.tally{display:flex;height:26px;border:2px solid var(--ink);margin-top:12px;font-family:var(--font-mono);font-size:.68rem;font-weight:700}
+.tally .tp{background:var(--good);color:#fff;display:flex;align-items:center;justify-content:center;transition:width .3s}
+.tally .tn{background:var(--bad);color:#fff;display:flex;align-items:center;justify-content:center;transition:width .3s}
+/* NN */
+.nnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.nnpanel{flex:1 1 180px;border:2px solid var(--ink);background:var(--panel);padding:11px}
+.nnpanel h5{margin:0 0 7px;font-family:var(--font-mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft);font-weight:700}
+.nnpanel .vl{font-family:var(--font-mono);font-weight:700;font-size:1rem}
+.nnpanel .vl.pos{color:var(--good)} .nnpanel .vl.neg{color:var(--bad)}
+.nnpanel .mk{font-size:.72rem;margin-top:3px;color:var(--ink-soft)}
+.phbtns{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+/* LDA */
+.lda-leg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+.lda-leg span{font-family:var(--font-mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.03em;display:flex;align-items:center;gap:6px;cursor:pointer}
+.lda-leg i{width:12px;height:12px;display:block;border:1px solid var(--ink)}
+.ldoc{border:2px solid var(--ink);background:var(--panel);padding:10px 12px;margin-bottom:10px}
+.ldoc .txt{font-size:.95rem;line-height:1.7}
+.ldoc .txt w{padding:1px 3px;border-radius:0;font-weight:600}
+.ldoc .bar{display:flex;height:12px;margin-top:9px;border:1.5px solid var(--ink)}
+.ldoc .bar span{display:block}
+.dim w{opacity:.22!important}
+
+/* ---- game ---- */
+.game{margin-top:26px;border:3px solid var(--ink);background:var(--panel);box-shadow:8px 8px 0 var(--shadowc)}
+.gbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;background:var(--ink);color:var(--paper);flex-wrap:wrap}
+.gbar .prog{font-family:var(--font-mono);font-weight:700;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em}
+.gbar .score{font-family:var(--font-mono);font-weight:700;font-size:.78rem;letter-spacing:.02em}
+.gbar .score b{color:var(--accent);font-size:1.05rem}
+.gbody{padding:20px 16px}
+.case .co{font-family:var(--font-mono);font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.case h3{font-size:1.35rem;font-weight:800;margin:7px 0 11px}
+.case .task{color:var(--ink-soft);font-size:1rem;max-width:64ch;line-height:1.55}
+.case .task b{color:var(--ink)}
+.case .task .cue{color:#fff;font-weight:700;background:var(--accent);padding:0 .14em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.opts{margin-top:20px;display:grid;gap:10px}
+@media(min-width:560px){.opts{grid-template-columns:1fr 1fr}}
+.opt{display:flex;align-items:center;gap:11px;text-align:left;font:inherit;font-weight:600;font-size:.94rem;color:var(--ink);background:var(--panel);border:2px solid var(--ink);padding:12px 13px;cursor:pointer;transition:transform .05s}
+.opt .k{font-family:var(--font-mono);font-weight:700;font-size:.72rem;color:var(--ink-soft);flex:0 0 auto}
+.opt:hover:not(:disabled){box-shadow:4px 4px 0 var(--accent);transform:translate(-2px,-2px)}
+.opt:disabled{cursor:default}
+.opt.correct{background:var(--good-bg);border-color:var(--good)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.opt.correct .k{color:var(--good)} .opt.wrong .k{color:var(--bad)}
+.opt.dim{opacity:.45}
+.verdict{margin-top:18px;border:3px solid var(--ink);padding:14px 15px;font-size:.95rem;display:none;line-height:1.55}
+.verdict.show{display:block}
+.verdict .vhead{font-family:var(--font-mono);font-weight:700;font-size:.74rem;text-transform:uppercase;letter-spacing:.03em;margin-bottom:7px}
+.verdict.ok{background:var(--good-bg);border-color:var(--good)} .verdict.ok .vhead{color:var(--good)}
+.verdict.no{background:var(--bad-bg);border-color:var(--bad)} .verdict.no .vhead{color:var(--bad)}
+.verdict p+p{margin-top:9px} .verdict b{color:var(--ink)}
+.gfoot{display:flex;justify-content:flex-end;padding:0 16px 18px}
+.next{font:inherit;font-family:var(--font-mono);font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;background:var(--accent);color:#fff;border:2px solid var(--ink);padding:12px 22px;cursor:pointer;display:none;box-shadow:4px 4px 0 var(--shadowc)}
+.next.show{display:inline-block}
+.next:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--shadowc)}
+/* result */
+.result{display:none;padding:36px 20px;text-align:center}
+.result.show{display:block}
+.result .big{font-family:var(--font-display);font-weight:800;font-size:3.4rem;line-height:1;color:var(--accent)}
+.result h3{font-size:1.5rem;font-weight:800;margin:14px 0 7px}
+.result p{color:var(--ink-soft);max-width:48ch;margin:0 auto;font-size:1rem;line-height:1.55}
+.result .replay{margin-top:22px}
+
+/* ---- takeaway ---- */
+.take{margin-top:34px;border-top:3px solid var(--ink);padding-block:34px 52px}
+.take h2{font-size:1.5rem;font-weight:800}
+.take .intro{margin-top:12px;color:var(--ink-soft);max-width:60ch;font-size:.98rem;line-height:1.5}
+.cheats{margin-top:18px;border:3px solid var(--ink);background:var(--panel);box-shadow:6px 6px 0 var(--shadowc)}
+.cheat{display:grid;grid-template-columns:1fr;gap:3px;padding:12px 15px;border-bottom:2px solid var(--line)}
+@media(min-width:560px){.cheat{grid-template-columns:1.3fr 1fr;align-items:center;gap:14px}}
+.cheat:last-child{border-bottom:none}
+.cheat .if{font-family:var(--font-mono);font-size:.8rem;color:var(--ink-soft)}
+.cheat .then{font-family:var(--font-display);font-weight:600;font-size:1.02rem;display:flex;align-items:center;gap:8px}
+.cheat .then .chip{font-family:var(--font-mono);font-weight:700;font-size:.58rem;text-transform:uppercase;letter-spacing:.03em;color:var(--on-spot);padding:2px 7px;border:none;cursor:default}
+.cheat.classify .then .chip{background:var(--classify)} .cheat.cluster .then .chip{background:var(--cluster)} .cheat.discover .then .chip{background:var(--discover)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <div class="wrap hwrap">
+    <div class="brand"><span class="dots"><i></i><i></i><i></i></span>TEXT-MINING TOOLBOX <span class="sub">// IT Seminar II / Data Mining</span></div>
+    <a class="themed" id="lang" href="index.html">English</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div class="kick" style="margin-bottom:14px">// minería de texto — el manual de métodos</div>
+    <h1>Dale sentido a cualquier<br>montón de <span class="mark">texto</span>.</h1>
+    <p class="lede">La minería de texto es cómo conviertes miles de reseñas, tuits, correos o tickets de soporte en respuestas, sin leerlos uno a uno. El truco: una máquina no hará nada útil hasta que le digas <b>qué trabajo</b> quieres hacer. La buena noticia, y el sentido de este manual: cada método de minería de texto que verás — y cada uno de tu examen — existe para hacer solo uno de tres trabajos. Aprende los tres trabajos y los nombres que asustan se convierten en herramientas que sabes cuándo usar.</p>
+    <nav class="hnav">
+      <a href="#methods">Los 8 métodos</a>
+      <a href="#choose">Elige el correcto</a>
+      <a href="#realworld">En el mundo real</a>
+      <a href="#limits">Límites y trampas</a>
+      <a href="#recap">Repaso de examen</a>
+    </nav>
+
+    <div class="ticker">
+      <div class="thead">// entrada — sin leer (40.217)</div>
+      <div class="rev">
+        <div class="r"><div class="who">Glovo / app de reparto</div><p>"El repartidor dejó mi pedido en la puerta equivocada y la app decía 'entregado'."</p><div class="st">★★☆☆☆</div></div>
+        <div class="r"><div class="who">Zara / online</div><p>"Me encanta el abrigo pero las tallas son pequeñas, lo devolví dos veces."</p><div class="st">★★★☆☆</div></div>
+        <div class="r"><div class="who">BBVA / app</div><p>"La nueva pantalla de transferencias es confusa, casi mando dinero al IBAN equivocado."</p><div class="st">★★☆☆☆</div></div>
+      </div>
+    </div>
+
+    <div class="three" style="margin-top:22px">
+      <div class="q c1"><div class="cap"><span>Trabajo 1</span><span>Clasificar</span></div><div class="body"><b>Ordena en cajas que ya conoces</b><small>Ya tienes las cajas en mente — positivo o negativo, spam o real — y algunos ejemplos. Quieres ordenar texto nuevo en esas mismas cajas.</small></div></div>
+      <div class="q c2"><div class="cap"><span>Trabajo 2</span><span>Agrupar</span></div><div class="body"><b>Encuentra grupos que nadie definió</b><small>Aún no hay cajas. Le das a la máquina un montón de texto y preguntas qué piezas van juntas de forma natural. Ella encuentra los grupos; tú les pones nombre después.</small></div></div>
+      <div class="q c3"><div class="cap"><span>Trabajo 3</span><span>Descubrir</span></div><div class="body"><b>Saca a la luz los temas ocultos</b><small>No quieres ordenar ni agrupar — solo quieres saber de qué va el texto, extrayendo los temas enterrados en miles de documentos.</small></div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="methods">
+    <div class="kick">// el mapa</div>
+    <h2>Los 8 métodos de minería de texto, agrupados por el trabajo que hacen</h2>
+    <p class="intro">Estos son los métodos principales de minería de texto — los que verás en Python, Orange, Power BI y en el examen. Seis de los ocho hacen exactamente el mismo trabajo, <i>Clasificar</i>: no son ocho problemas distintos, son seis personalidades para uno. Uno es rápido, uno es preciso, uno se lo puedes explicar a tu jefe, uno funciona como un comité que vota. Los otros dos hacen cada uno su propio trabajo. <b>Pulsa “Pruébalo” en cualquier método</b> para jugar con un pequeño modelo de cómo funciona, y mira las líneas de Colab / Orange / Power BI para saber cómo ejecutarlo.</p>
+    <div class="jobs" id="jobs"></div>
+  </section>
+
+  <section class="sec" id="choose">
+    <div class="kick">// el juego</div>
+    <h2>Elige la herramienta correcta para cada caso</h2>
+
+    <div class="game">
+      <div class="gbar">
+        <div class="prog" id="prog">Caso 1 de 8</div>
+        <div class="score">PUNTOS <b id="score">0</b> / 8</div>
+      </div>
+      <div class="gbody" id="gbody"></div>
+      <div class="gfoot"><button class="next" id="next">Next case →</button></div>
+      <div class="result" id="result">
+        <div class="big" id="finalscore">0/8</div>
+        <h3 id="finalhead">Bien hecho</h3>
+        <p id="finaltext"></p>
+        <div class="replay"><button class="next show" id="replay">Jugar otra vez</button></div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+  .rules{margin-top:22px;border:3px solid var(--ink);background:var(--panel);box-shadow:6px 6px 0 var(--shadowc)}
+  .rule{padding:14px 16px;border-bottom:2px solid var(--line)}
+  .rule:last-child{border-bottom:none}
+  .rule .rh{font-family:var(--font-display);font-weight:600;font-size:1.04rem;margin-bottom:4px;display:flex;gap:10px;align-items:baseline}
+  .rule .rn{font-family:var(--font-mono);font-weight:700;font-size:.72rem;color:var(--accent);flex:0 0 auto}
+  #limits .rule .rn{color:var(--bad)}
+  .rule p{font-size:.9rem;color:var(--ink-soft);line-height:1.5;margin:0}
+  </style>
+
+  <section class="sec" id="realworld">
+    <div class="kick">// en el mundo real</div>
+    <h2>Usar minería de texto en negocio (y vida) real</h2>
+    <p class="intro">Elegir el método es la mitad del trabajo. Estos son los hábitos que separan una demo de algo en lo que un negocio puede confiar de verdad.</p>
+    <div class="rules">
+      <div class="rule"><div class="rh"><span class="rn">01</span>Empieza simple, luego escala</div><p>Haz primero una línea base rápida (Naive Bayes) y solo recurre a Random Forest o a una red neuronal si no es suficiente. Un modelo simple que entiendes gana a uno sofisticado que no.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">02</span>Sin etiquetas, no hay clasificación</div><p>Sin ejemplos etiquetados todavía no puedes clasificar. Agrupa o haz topic modelling para entender los datos primero, luego etiqueta una muestra y sigue desde ahí.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">03</span>Limpia el texto primero</div><p>Pásalo a minúsculas, quita las stopwords y pondera las palabras (TF-IDF) antes de cualquier método. Basura entra, basura sale — casi todo el trabajo real es preparar el texto.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">04</span>Ajusta el método al riesgo</div><p>Para decisiones reguladas o de cara al cliente, un Decision Tree legible que puedes defender gana a una caja negra más precisa que nadie sabe explicar.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">05</span>Prueba siempre con datos no vistos</div><p>Divide en entrenamiento y test. Un modelo que saca 99% con los datos que ya vio puede hundirse con las reseñas nuevas de la semana que viene.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">06</span>Mantén a una persona en el bucle</div><p>La máquina propone; una persona nombra los grupos, lee los temas y aprueba las decisiones. Es un copiloto, no un piloto automático.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">07</span>Tú eliges el método, no la herramienta</div><p>Python, Orange o un asistente de IA harán lo que les pidas. Tú decides qué método encaja en la situación y compruebas que el resultado hizo de verdad el trabajo que querías.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">08</span>Los modelos caducan</div><p>El idioma, los productos y la jerga cambian, así que reentrena de vez en cuando o tu clasificador se aleja en silencio de la realidad.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="limits">
+    <div class="kick">// límites y trampas</div>
+    <h2>Lo que la minería de texto no puede hacer (y dónde muerde)</h2>
+    <p class="intro">Conocer los límites es materia de examen y seguro profesional a partes iguales. Estas son las trampas que conviene nombrar antes de que lo haga otro.</p>
+    <div class="rules">
+      <div class="rule"><div class="rh"><span class="rn">!</span>Basura entra, basura sale</div><p>Datos sucios, sesgados o diminutos dan resultados sucios, sesgados o poco fiables. El método no puede rescatar datos malos.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>El sesgo se hereda</div><p>Un modelo absorbe los prejuicios que hay en su texto de entrenamiento, así que audítalo antes de confiar en él con personas reales.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>El sarcasmo y la ironía son difíciles</div><p>"Genial, otro retraso" engaña a casi todos los métodos salvo a modelos neuronales cuidadosos. El texto corto y ambiguo es lo más difícil.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>Los grupos y los temas necesitan a una persona</div><p>La máquina encuentra grupos y temas pero no sabe qué significan. Tú los interpretas y les pones nombre.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>Correlación no es causalidad</div><p>Que dos palabras aparezcan juntas no explica el porqué, y nunca demuestra que una cause la otra. Desconfía de las historias demasiado redondas.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>Cambio de idioma y de dominio</div><p>Un modelo entrenado con tuits en español no funcionará con contratos legales en inglés sin reentrenar. El contexto no se transfiere gratis.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>La precisión puede costar explicabilidad</div><p>El modelo con mejor puntuación suele ser el más difícil de justificar. Es un compromiso real que hay que decidir a propósito, no un regalo.</p></div>
+      <div class="rule"><div class="rh"><span class="rn">!</span>El texto son datos personales</div><p>Minar reseñas, correos o chats tiene límites legales y éticos (RGPD, consentimiento). No todo lo que puedes hacer, te está permitido hacerlo.</p></div>
+    </div>
+  </section>
+
+  <style>
+  /* ---- live vote section (prefixed lv- so it never clashes with the game/demos) ---- */
+  #livevote .lv-roles{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:18px}
+  .lv-rolebtn{font:inherit;font-family:var(--font-mono);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:9px 14px;cursor:pointer}
+  .lv-rolebtn:hover{background:var(--accent);color:#fff}
+  .lv-rolebtn.on{background:var(--ink);color:var(--paper)}
+  .lv-conn{font-family:var(--font-mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);margin-left:auto}
+  .lv-conn b{color:var(--cluster)} .lv-conn.off b{color:var(--accent)}
+  .lv-setup{border:3px solid var(--accent);background:var(--panel);padding:13px 15px;margin-top:16px;font-size:.88rem;line-height:1.5}
+  .lv-setup b{color:var(--accent)} .lv-setup code{font-family:var(--font-mono);font-size:.78rem;background:var(--paper);padding:1px 5px;border:1px solid var(--line)}
+  .lv-panel{margin-top:20px;border:3px solid var(--ink);background:var(--panel);box-shadow:8px 8px 0 var(--shadowc);padding:18px 16px}
+  .lv-qco{font-family:var(--font-mono);font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+  .lv-qt{font-family:var(--font-display);font-weight:800;font-size:clamp(1.25rem,4vw,1.9rem);margin:8px 0 14px;line-height:1.06}
+  .lv-opts{display:grid;gap:10px}
+  .lv-opt{display:flex;align-items:center;gap:11px;text-align:left;font:inherit;font-weight:700;font-size:1.02rem;color:var(--ink);background:var(--panel);border:2px solid var(--ink);padding:14px 15px;cursor:pointer;transition:transform .05s}
+  .lv-opt .lk{font-family:var(--font-mono);font-weight:700;font-size:.74rem;color:var(--ink-soft);width:20px;flex:0 0 auto}
+  .lv-opt:hover:not(:disabled){box-shadow:4px 4px 0 var(--accent);transform:translate(-2px,-2px)}
+  .lv-opt.mine{background:var(--accent);color:#fff;border-color:var(--ink)} .lv-opt.mine .lk{color:#fff}
+  .lv-opt.correct{background:var(--good-bg);border-color:var(--good)}
+  .lv-opt:disabled{cursor:default}
+  .lv-note{margin-top:15px;border:2px solid var(--line);background:var(--paper);padding:12px 14px;font-size:.9rem;color:var(--ink-soft)} .lv-note b{color:var(--ink)}
+  .lv-bars{display:grid;gap:9px}
+  .lv-bar{position:relative;border:2px solid var(--ink);background:var(--panel);overflow:hidden}
+  .lv-bar .lf{position:absolute;inset:0 auto 0 0;background:var(--accent);opacity:.22;transition:width .4s ease}
+  .lv-bar.correct .lf{background:var(--good);opacity:.28}
+  .lv-bar .lr{position:relative;display:flex;align-items:center;gap:11px;padding:14px 15px}
+  .lv-bar .lk{font-family:var(--font-mono);font-weight:700;font-size:.74rem;color:var(--ink-soft);width:20px;flex:0 0 auto}
+  .lv-bar .ll{font-weight:700;font-size:1rem;flex:1;min-width:0}
+  .lv-bar.correct .ll::after{content:" ✓";color:var(--good);font-family:var(--font-mono)}
+  .lv-bar .ln{font-family:var(--font-mono);font-weight:700;font-size:.9rem;flex:0 0 auto}
+  .lv-bar .lp{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-soft);width:44px;text-align:right;flex:0 0 auto}
+  .lv-ctrls{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px;border-top:2px solid var(--line);padding-top:16px}
+  .lv-btn{font:inherit;font-family:var(--font-mono);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:11px 15px;cursor:pointer}
+  .lv-btn:hover:not(:disabled){background:var(--accent);color:#fff} .lv-btn.primary{background:var(--accent);color:#fff}
+  .lv-btn.ghost{color:var(--ink-soft)} .lv-btn:disabled{opacity:.4;cursor:default}
+  .lv-why{margin-top:15px;border:3px solid var(--good);background:var(--good-bg);padding:13px 15px;font-size:.93rem;display:none;line-height:1.5} .lv-why.show{display:block}
+  .lv-why .wh{font-family:var(--font-mono);font-weight:700;font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;color:var(--good);margin-bottom:6px}
+  .lv-meta{display:flex;flex-wrap:wrap;gap:16px;margin-top:13px;font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft)} .lv-meta b{color:var(--accent);font-size:1rem}
+  .lv-join{display:flex;gap:16px;align-items:center;flex-wrap:wrap;border:2px solid var(--ink);background:var(--paper);padding:14px;margin-bottom:16px}
+  .lv-join .lqr{width:120px;height:120px;background:#fff;border:2px solid var(--ink);display:grid;place-items:center;flex:0 0 auto}
+  .lv-join .lqr img,.lv-join .lqr canvas{width:108px !important;height:108px !important}
+  .lv-join .lu{flex:1;min-width:180px}
+  .lv-join .lu .lead{font-family:var(--font-mono);font-weight:700;font-size:.64rem;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);margin-bottom:5px}
+  .lv-join .lu .url{font-family:var(--font-mono);font-weight:700;font-size:.98rem;word-break:break-all}
+  .lv-panel:fullscreen{background:var(--bg);padding:5vmin;overflow:auto}
+  .lv-panel:fullscreen .lv-qt{font-size:clamp(1.9rem,4.2vw,3.1rem)}
+  .lv-panel:fullscreen .lv-bar .ll{font-size:1.3rem}
+  </style>
+
+  <section class="sec" id="livevote">
+    <div class="kick">// votación en vivo</div>
+    <h2>Votación en vivo — todos juntos</h2>
+    <div class="lv-roles">
+      <span class="lv-conn" id="lvConn">● <b>conectando…</b></span>
+    </div>
+    <div class="lv-panel" id="lvPanel"></div>
+  </section>
+
+  <section class="take" id="recap">
+    <h2>Repaso de examen</h2>
+    <div class="cheats" id="cheats"></div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var root=document.documentElement;
+  function tok(n){return getComputedStyle(root).getPropertyValue('--'+n).trim();}
+  function C(){return {ink:tok('ink'),soft:tok('ink-soft'),line:tok('line'),panel:tok('panel'),
+    good:tok('good'),bad:tok('bad'),accent:tok('accent'),blue:tok('classify'),green:tok('cluster'),purple:tok('discover')};}
+
+  /* ===== data: the 8 tools ===== */
+  var JOBS=[
+    {cls:'classify',tag:'Trabajo 1 / Clasificar',title:'Ordenar texto en cajas que ya definiste',plain:'Ya tienes las categorías en mente y algunos ejemplos etiquetados. El trabajo es ordenar texto nuevo en cajas que has dibujado tú.',tools:[
+      {id:'nb',b:'NB',n:'Naive Bayes',role:'La línea base rápida',d:'Imagina ordenar tu bandeja de entrada en "spam" y "normal". Naive Bayes simplemente aprende qué palabras aparecen mucho en cada montón: un correo lleno de "gratis", "ganador" y "haz clic ya" se parece al montón de spam, así que lo marca como spam. Literalmente cuenta palabras y apuesta por el montón más probable. Eso lo hace muy rápido, muy barato y sorprendentemente bueno para lo simple que es. Úsalo como primer intento siempre que ya tengas ejemplos etiquetados, para tener un resultado en segundos antes de recurrir a algo más pesado.'},
+      {id:'svm',b:'SVM',n:'Support Vector Machines',role:'El separador afilado',d:'Imagina todas tus reseñas como puntos en una mesa, las contentas agrupadas a un lado y las enfadadas al otro. SVM encuentra la línea recta que separa los dos grupos con el mayor espacio vacío a cada lado, la frontera más limpia que podrías dibujar. Una reseña nueva cae a un lado de esa línea y toma esa etiqueta. Como la frontera es tan limpia, suele ser muy precisa, sobre todo cuando no tienes una cantidad enorme de datos. La pega: te da la respuesta pero no un "por esto" fácil.'},
+      {id:'knn',b:'KNN',n:'K-Nearest Neighbours',role:'El buscador de parecidos',d:'La idea que ya usas cada día: para juzgar algo nuevo, mira las cosas más parecidas a ello. Para etiquetar una reseña nueva, KNN busca las pocas reseñas pasadas que más se le parecen (sus "vecinos" más cercanos) y copia la etiqueta que tenía la mayoría. Si las cinco reseñas más parecidas estaban enfadadas, la nueva probablemente también. La "K" es simplemente cuántos vecinos votan. Intuitivo y fácil, pero se vuelve lento cuando hay millones de reseñas pasadas con las que comparar.'},
+      {id:'dt',b:'DT',n:'Decision Tree',role:'El que puedes explicar',d:'Un árbol de decisión no es más que un diagrama de preguntas sí/no, como un test. ¿La reseña menciona "reembolso"? Si sí, ¿menciona también "tarde"? Si sí, etiquétala como negativa. Sigues las ramas hasta llegar a una respuesta al final. Su superpoder es que puedes mostrar el camino exacto y decir "es negativa porque mencionó reembolso y tarde", perfecto cuando un jefe, un cliente o un regulador pregunta por qué. Por sí solo suele ser un poco menos preciso que los métodos más pesados.'},
+      {id:'rf',b:'RF',n:'Random Forest',role:'El comité',d:'Un solo diagrama puede equivocarse, así que Random Forest construye cientos de árboles un poco distintos y los hace votar, como preguntar a un panel entero en vez de a una sola persona. Los errores de cualquier árbol quedan en minoría frente al grupo, así que la respuesta es más precisa y fiable, sobre todo con texto real y desordenado. El precio: con cientos de árboles votando, ya no puedes señalar una razón simple como sí hace un único árbol.'},
+      {id:'nn',b:'NN',n:'Neural Networks',role:'La maquinaria pesada',d:'Esta es la potente familia del "deep learning", el mismo tipo de tecnología que hay detrás de Google Translate y ChatGPT. A diferencia de los métodos más simples, presta atención al orden de las palabras y al contexto, así que entiende que "no está nada mal" es en realidad positivo, o que una frase es sarcástica, y puede trabajar entre idiomas. El precio es que necesita muchos ejemplos y mucha potencia de cálculo, así que es excesivo para tareas simples y solo merece la pena cuando el significado es realmente sutil.'}
+    ]},
+    {cls:'cluster',tag:'Trabajo 2 / Agrupar',title:'Encontrar grupos de los que nadie te habló',plain:'Sin etiquetas, sin cajas. Quieres que los datos revelen sus propios segmentos naturales, y luego tú decides cómo llamarlos.',tools:[
+      {id:'km',b:'KM',n:'K-Means',role:'El agrupador',d:'Imagina que tienes una caja grande de reseñas mezcladas sin etiqueta ninguna. K-Means las agrupa por parecido: le dices cuántos grupos quieres (ese número es la "K", digamos 4) y mete cada reseña en el grupo más cercano, ajustando los grupos hasta que se estabilizan. Luego abres cada grupo y ves qué tienen en común, por ejemplo "todo este grupo va de entregas con retraso". La máquina hace los grupos; tú les pones nombre. Genial cuando sospechas que hay segmentos naturales pero nadie los ha definido todavía.'}
+    ]},
+    {cls:'discover',tag:'Trabajo 3 / Descubrir temas',title:'Sacar a la luz los temas ocultos del texto',plain:'No quieres ordenar ni agrupar — solo quieres saber de qué va de verdad una montaña de texto.',tools:[
+      {id:'lda',b:'LDA',n:'Latent Dirichlet Allocation',role:'El detector de temas',d:'LDA responde a "¿de qué va todo este texto?" sin que tú lo leas. Dale miles de documentos y encuentra los temas ocultos que los recorren, cada uno mostrado como un grupo de palabras que aparecen juntas: por ejemplo "tarde, pedido, repartidor, frío" apunta claramente a entregas. Lo ingenioso es que trata cada documento como una mezcla de temas, no solo uno (una reseña puede ser 70% sobre entrega y 30% sobre precio). No te leerá el montón, pero te dice de qué va y qué merece una mirada más de cerca.'}
+    ]}
+  ];
+  var HOW={
+    nb:{colab:'<code>from sklearn.naive_bayes import MultinomialNB</code>, luego <code>MultinomialNB().fit(X, y)</code> sobre una matriz CountVectorizer y <code>.predict(new)</code>.',
+        orange:'Corpus → Bag of Words → Naive Bayes → Test & Score.',
+        powerbi:'Sin clasificador propio. Usa AI Insights para sentimiento ya hecho, o un visual de Python/R.'},
+    svm:{colab:'<code>from sklearn.svm import LinearSVC</code>, luego <code>LinearSVC().fit(X, y)</code> sobre tu matriz TF-IDF.',
+        orange:'Bag of Words → SVM → Test & Score.',
+        powerbi:'No viene de serie; ejecútalo dentro de un visual de Python/R.'},
+    knn:{colab:'<code>from sklearn.neighbors import KNeighborsClassifier</code>, luego <code>KNeighborsClassifier(n_neighbors=5).fit(X, y)</code>.',
+        orange:'Bag of Words → kNN → Test & Score.',
+        powerbi:'No viene de serie; visual de Python/R.'},
+    dt:{colab:'<code>from sklearn.tree import DecisionTreeClassifier</code>, <code>.fit(X, y)</code>, luego <code>plot_tree()</code> para ver las reglas.',
+        orange:'Tree → Tree Viewer muestra el diagrama.',
+        powerbi:'El visual Decomposition Tree da una vista similar que explica por divisiones; o un visual de Python/R.'},
+    rf:{colab:'<code>from sklearn.ensemble import RandomForestClassifier</code>, luego <code>RandomForestClassifier().fit(X, y)</code>.',
+        orange:'Bag of Words → Random Forest → Test & Score.',
+        powerbi:'No es nativo; visual de Python/R. El visual Key Influencers da una versión ligera de "qué lo provoca".'},
+    nn:{colab:'Inicio rápido <code>from sklearn.neural_network import MLPClassifier</code>; para modelos profundos de verdad usa Keras o los transformers de Hugging Face.',
+        orange:'Widget Neural Network para una red básica; los modelos profundos necesitan Python.',
+        powerbi:'No es nativo; usa AI Insights (sentimiento, frases clave) o un visual de Python.'},
+    km:{colab:'<code>from sklearn.cluster import KMeans</code>, luego <code>KMeans(n_clusters=4).fit(X)</code>; lee <code>.labels_</code>.',
+        orange:'Widget k-Means → Silhouette Plot para elegir k.',
+        powerbi:'Gráfico de dispersión → "Automatically find clusters", o un visual de Python/R.'},
+    lda:{colab:'<code>from sklearn.decomposition import LatentDirichletAllocation</code> (o gensim) → <code>.fit(X)</code> sobre conteos de palabras; lee las palabras principales de cada tema.',
+        orange:'Widget Topic Modelling (LDA) → Word Cloud por tema.',
+        powerbi:'No es nativo; ejecuta gensim/sklearn en un visual de Python, o usa las frases clave de AI Insights como opción ligera.'}
+  };
+  function howHTML(id){ var h=HOW[id]; if(!h) return '';
+    return '<div class="how">'+
+      '<div class="how-row"><span class="how-lab">Colab</span><span>'+h.colab+'</span></div>'+
+      '<div class="how-row"><span class="how-lab">Orange</span><span>'+h.orange+'</span></div>'+
+      '<div class="how-row na"><span class="how-lab">Power BI</span><span>'+h.powerbi+'</span></div>'+
+    '</div>';
+  }
+  var jobsEl=document.getElementById('jobs');
+  JOBS.forEach(function(j){
+    var tools=j.tools.map(function(t){
+      return '<div class="tool"><div class="tool-head"><div class="badge">'+t.b+'</div>'+
+        '<div class="tx"><b>'+t.n+'</b><span class="role">'+t.role+'</span><p>'+t.d+'</p>'+howHTML(t.id)+'</div></div>'+
+        '<button class="howbtn" data-demo="'+t.id+'" aria-expanded="false">▸ Pruébalo — cómo funciona</button>'+
+        '<div class="demo" id="demo-'+t.id+'" hidden></div></div>';
+    }).join('');
+    jobsEl.insertAdjacentHTML('beforeend',
+      '<div class="job '+j.cls+'"><div class="cap"><span class="tag">'+j.tag+'</span><h3>'+j.title+'</h3><span class="plain">'+j.plain+'</span></div><div class="tools">'+tools+'</div></div>');
+  });
+
+  /* ===== demo wiring ===== */
+  var inited={};
+  function redrawDemos(){ for(var k in inited){ var h=document.getElementById('demo-'+k); if(h && !h.hidden && inited[k] && inited[k].redraw) inited[k].redraw(); } }
+  document.querySelectorAll('.howbtn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var id=btn.getAttribute('data-demo'), host=document.getElementById('demo-'+id);
+      var open=host.hidden;
+      host.hidden=!open; btn.setAttribute('aria-expanded',String(open));
+      btn.textContent=(open?'▾':'▸')+' Pruébalo — cómo funciona';
+      if(open && !inited[id]){ inited[id]=DEMOS[id](host)||{}; }
+      else if(open && inited[id] && inited[id].redraw){ inited[id].redraw(); }
+    });
+  });
+
+  function mkCanvas(host, ratio){
+    var cv=document.createElement('canvas'); host.appendChild(cv);
+    var W=Math.min(host.clientWidth-30, 500); if(W<240)W=240; var H=Math.round(W*ratio);
+    var dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+    cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px';
+    var ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {cv:cv,ctx:ctx,W:W,H:H};
+  }
+  function el(tag,cls,html){var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e;}
+
+  var DEMOS={};
+
+  /* ---- Naive Bayes: word votes -> needle ---- */
+  DEMOS.nb=function(host){
+    host.appendChild(el('div','dlead','Construye una reseña pulsando palabras. Cada palabra lleva su propio votito — Naive Bayes solo <b>los suma todos</b> y elige el lado que pesa más. Mira moverse la aguja.'));
+    var words=[['tarde',-2],['frío',-2],['falta',-2],['lento',-1.5],['grosero',-2],
+               ['rápido',1.5],['encantador',2],['genial',2],['perfecto',2],['útil',1.5]];
+    var row=el('div','chiprow'); var sel={};
+    words.forEach(function(wd,i){
+      var c=el('button','chip '+(wd[1]<0?'neg':'pos'),wd[0]);
+      c.addEventListener('click',function(){ sel[i]=!sel[i]; c.classList.toggle('on',sel[i]); upd(); });
+      row.appendChild(c);
+    });
+    host.appendChild(row);
+    var meter=el('div','meter','<span class="half">◂ negativo</span><span class="half r">positivo ▸</span><span class="mid"></span>');
+    var needle=el('div','needle'); meter.appendChild(needle); host.appendChild(meter);
+    var out=el('div','dreadout','Elige algunas palabras…'); host.appendChild(out);
+    function upd(){
+      var s=0,n=0; words.forEach(function(wd,i){ if(sel[i]){s+=wd[1];n++;} });
+      var p=1/(1+Math.exp(-s)); needle.style.left=(6+p*88)+'%';
+      if(n===0){ out.innerHTML='Elige algunas palabras…'; return; }
+      var lab = s>0?'<span class="pos">POSITIVE</span>' : s<0?'<span class="neg">NEGATIVE</span>' : 'a cara o cruz';
+      out.innerHTML='Voto acumulado: '+(s>0?'+':'')+s+'  →  '+lab+'  ('+Math.round(p*100)+'% positivo)';
+    }
+    upd(); return {};
+  };
+
+  /* ---- SVM: widest-margin line ---- */
+  DEMOS.svm=function(host){
+    host.appendChild(el('div','dlead','Dos grupos de reseñas. Muchas líneas podrían separarlos — SVM busca la que tiene el <b>hueco vacío más ancho</b> a ambos lados. Arrastra el control para inclinar la línea, o deja que salte al hueco más ancho.'));
+    var neg=[[.26,.34],[.33,.48],[.2,.55],[.36,.3],[.29,.6],[.18,.4],[.4,.5]];
+    var pos=[[.72,.62],[.65,.72],[.8,.56],[.7,.5],[.78,.7],[.62,.58],[.84,.66]];
+    var cvo=mkCanvas(host,0.62); var W=cvo.W,H=cvo.H,ctx=cvo.ctx,pad=24;
+    var ctrls=el('div','ctrls');
+    var lab=el('label','ctl','Inclina <input type="range" min="0" max="180" value="35">');
+    var best=el('button','dbtn primary','Ajustar al hueco más ancho');
+    ctrls.appendChild(lab); ctrls.appendChild(best); host.appendChild(ctrls);
+    var out=el('div','dreadout',''); host.appendChild(out);
+    var slider=lab.querySelector('input');
+    function P(p){return [pad+p[0]*(W-2*pad), pad+p[1]*(H-2*pad)];}
+    function marginAt(deg){
+      var th=deg*Math.PI/180, nx=-Math.sin(th), ny=Math.cos(th), cx=.5,cy=.5, m=1e9;
+      neg.concat(pos).forEach(function(p){ var d=Math.abs((p[0]-cx)*nx+(p[1]-cy)*ny); if(d<m)m=d; });
+      return m;
+    }
+    function draw(){
+      var c=C(); ctx.clearRect(0,0,W,H);
+      var deg=+slider.value, th=deg*Math.PI/180;
+      var dx=Math.cos(th), dy=Math.sin(th), nx=-Math.sin(th), ny=Math.cos(th);
+      var ctr=P([.5,.5]), L=Math.max(W,H);
+      // margin band
+      var m=marginAt(deg), mpx=m*(W-2*pad);
+      ctx.strokeStyle=c.soft; ctx.setLineDash([5,5]); ctx.lineWidth=1.5;
+      [-1,1].forEach(function(sgn){
+        ctx.beginPath();
+        ctx.moveTo(ctr[0]+sgn*nx*mpx-dx*L, ctr[1]+sgn*ny*mpx-dy*L);
+        ctx.lineTo(ctr[0]+sgn*nx*mpx+dx*L, ctr[1]+sgn*ny*mpx+dy*L);
+        ctx.stroke();
+      });
+      ctx.setLineDash([]);
+      // boundary
+      ctx.strokeStyle=c.ink; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(ctr[0]-dx*L,ctr[1]-dy*L); ctx.lineTo(ctr[0]+dx*L,ctr[1]+dy*L); ctx.stroke();
+      // points
+      function dot(arr,col){ arr.forEach(function(p){ var q=P(p); ctx.fillStyle=col; ctx.strokeStyle=c.ink; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.arc(q[0],q[1],7,0,7); ctx.fill(); ctx.stroke(); }); }
+      dot(neg,c.bad); dot(pos,c.good);
+      out.innerHTML='Ancho del hueco: <b>'+Math.round(mpx)+' px</b> — cuanto más ancho, mejor.';
+    }
+    slider.addEventListener('input',draw);
+    best.addEventListener('click',function(){
+      var bd=0,bm=0; for(var d=0;d<=180;d+=2){var mm=marginAt(d); if(mm>bm){bm=mm;bd=d;}}
+      var cur=+slider.value, step=(bd-cur)/16, i=0;
+      var t=setInterval(function(){ i++; slider.value=cur+step*i; draw(); if(i>=16)clearInterval(t); },20);
+    });
+    draw(); return {redraw:draw};
+  };
+
+  /* ---- KNN: drag the new point ---- */
+  DEMOS.knn=function(host){
+    host.appendChild(el('div','dlead','El <b>?</b> es una reseña nueva. KNN la etiqueta por el voto de sus <b>k vecinos más cercanos</b>. Arrastra el ? y cambia k — mira cómo la respuesta cambia cuando queda entre los dos bandos.'));
+    var pos=[[.3,.3],[.4,.24],[.25,.44],[.5,.34],[.35,.4],[.52,.46]];
+    var neg=[[.7,.7],[.6,.74],[.75,.6],[.8,.72],[.64,.6],[.48,.54]];
+    var q=[.5,.5];
+    var cvo=mkCanvas(host,0.62); var W=cvo.W,H=cvo.H,ctx=cvo.ctx,cv=cvo.cv,pad=24;
+    var ctrls=el('div','ctrls'); var lab=el('label','ctl','k = <b id="kv">3</b> <input type="range" min="1" max="7" step="2" value="3">');
+    ctrls.appendChild(lab); host.appendChild(ctrls);
+    var out=el('div','dreadout',''); host.appendChild(out);
+    var slider=lab.querySelector('input'), kv=lab.querySelector('#kv');
+    function P(p){return [pad+p[0]*(W-2*pad), pad+p[1]*(H-2*pad)];}
+    function draw(){
+      var c=C(); ctx.clearRect(0,0,W,H); var k=+slider.value; kv.textContent=k;
+      var all=pos.map(function(p){return {p:p,l:1};}).concat(neg.map(function(p){return {p:p,l:0};}));
+      var qp=P(q);
+      all.forEach(function(o){ var a=P(o.p); o.d=Math.hypot(a[0]-qp[0],a[1]-qp[1]); });
+      all.sort(function(a,b){return a.d-b.d;});
+      var near=all.slice(0,k), votePos=near.filter(function(o){return o.l===1;}).length;
+      // lines to neighbours
+      ctx.strokeStyle=c.soft; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+      near.forEach(function(o){ var a=P(o.p); ctx.beginPath(); ctx.moveTo(qp[0],qp[1]); ctx.lineTo(a[0],a[1]); ctx.stroke(); });
+      ctx.setLineDash([]);
+      function dot(o){ var a=P(o.p); ctx.fillStyle=o.l?c.good:c.bad; ctx.strokeStyle=c.ink; ctx.lineWidth=near.indexOf(o)>=0?3:1.5;
+        ctx.beginPath(); ctx.arc(a[0],a[1],7,0,7); ctx.fill(); ctx.stroke(); }
+      all.forEach(dot);
+      // query
+      var win = votePos> k/2 ? c.good : c.bad;
+      ctx.fillStyle=c.panel; ctx.strokeStyle=win; ctx.lineWidth=4;
+      ctx.beginPath(); ctx.arc(qp[0],qp[1],12,0,7); ctx.fill(); ctx.stroke();
+      ctx.fillStyle=c.ink; ctx.font='700 13px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('?',qp[0],qp[1]);
+      var lbl = votePos>k/2 ? '<span class="pos">POSITIVE</span>' : '<span class="neg">NEGATIVE</span>';
+      out.innerHTML='Los '+k+' más cercanos dicen: '+lbl+'  ('+votePos+' positivos vs '+(k-votePos)+' negativos)';
+    }
+    function setFromEvent(e){
+      var r=cv.getBoundingClientRect(), cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left, cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+      q=[Math.min(1,Math.max(0,(cx-pad)/(W-2*pad))), Math.min(1,Math.max(0,(cy-pad)/(H-2*pad)))]; draw();
+    }
+    var drag=false;
+    cv.addEventListener('pointerdown',function(e){drag=true; cv.setPointerCapture(e.pointerId); setFromEvent(e);});
+    cv.addEventListener('pointermove',function(e){if(drag)setFromEvent(e);});
+    cv.addEventListener('pointerup',function(){drag=false;});
+    slider.addEventListener('input',draw);
+    draw(); return {redraw:draw};
+  };
+
+  /* ---- Decision Tree: walk the flowchart ---- */
+  DEMOS.dt=function(host){
+    host.appendChild(el('div','dlead','Un árbol de decisión no es más que un diagrama de preguntas sí/no. Respóndelas y sigue el camino hasta una hoja — puedes literalmente <b>leer el razonamiento en voz alta</b>, por eso es el que puedes explicar.'));
+    var wrap=el('div','treewrap');
+    wrap.innerHTML=
+      '<div class="tnode q active" data-n="0"><span>¿Menciona una palabra de problema? <i style="color:var(--ink-soft)">(tarde, falta, reembolso…)</i></span><span class="ybtns"><button class="ybtn" data-a="y">Sí</button><button class="ybtn" data-a="n">No</button></span></div>'+
+      '<div class="tedge" data-e="0" hidden></div>'+
+      '<div class="tnode leaf neg" data-leaf="neg" hidden>→ NEGATIVO</div>'+
+      '<div class="tnode q" data-n="1" hidden><span>¿Menciona una palabra de elogio? <i style="color:var(--ink-soft)">(genial, rápido, encantador…)</i></span><span class="ybtns"><button class="ybtn" data-a="y">Sí</button><button class="ybtn" data-a="n">No</button></span></div>'+
+      '<div class="tedge" data-e="1" hidden></div>'+
+      '<div class="tnode leaf pos" data-leaf="pos" hidden>→ POSITIVO</div>'+
+      '<div class="tnode leaf neu" data-leaf="neu" hidden>→ NO SEGURO (tira a la clase común)</div>';
+    host.appendChild(wrap);
+    var out=el('div','dreadout','Empieza por arriba.'); host.appendChild(out);
+    var path=[];
+    function reset(keep){
+      wrap.querySelectorAll('[data-leaf],[data-n="1"],[data-e]').forEach(function(x){x.hidden=true;});
+      wrap.querySelectorAll('.ybtn').forEach(function(b){b.classList.remove('chosen');});
+      wrap.querySelectorAll('.tnode').forEach(function(x){x.classList.remove('active');});
+      wrap.querySelector('[data-n="0"]').classList.add('active');
+      if(!keep){ path=[]; out.textContent='Empieza por arriba.'; }
+    }
+    wrap.addEventListener('click',function(e){
+      var btn=e.target.closest('.ybtn'); if(!btn)return;
+      var node=btn.closest('.tnode'), n=node.getAttribute('data-n'), a=btn.getAttribute('data-a');
+      if(node.classList.contains('answered'))return;
+      node.querySelectorAll('.ybtn').forEach(function(b){b.classList.remove('chosen');}); btn.classList.add('chosen');
+      if(n==='0'){
+        reset(true); btn.classList.add('chosen'); node.classList.remove('active');
+        wrap.querySelector('[data-e="0"]').hidden=false;
+        if(a==='y'){ var lf=wrap.querySelector('[data-leaf="neg"]'); lf.hidden=false;
+          out.innerHTML='Camino: ¿palabra de problema? <b>Sí</b> → <span class="neg">NEGATIVO</span>'; }
+        else{ var q1=wrap.querySelector('[data-n="1"]'); q1.hidden=false; q1.classList.add('active');
+          out.innerHTML='Camino: ¿palabra de problema? <b>No</b> → siguiente pregunta…'; }
+      } else {
+        node.classList.remove('active');
+        wrap.querySelector('[data-e="1"]').hidden=false;
+        if(a==='y'){ wrap.querySelector('[data-leaf="pos"]').hidden=false;
+          out.innerHTML='Camino: ¿problema? <b>No</b> → ¿elogio? <b>Sí</b> → <span class="pos">POSITIVO</span>'; }
+        else{ wrap.querySelector('[data-leaf="neu"]').hidden=false;
+          out.innerHTML='Camino: ¿problema? <b>No</b> → ¿elogio? <b>No</b> → no seguro.'; }
+      }
+    });
+    var rb=el('button','dbtn','Reiniciar'); rb.style.marginTop='12px'; rb.addEventListener('click',function(){reset(false);}); host.appendChild(rb);
+    return {};
+  };
+
+  /* ---- Random Forest: the committee votes ---- */
+  DEMOS.rf=function(host){
+    host.appendChild(el('div','dlead','Cada árbol es un poco distinto y cada uno adivina por su cuenta — un árbol solo se equivoca bastante a menudo. El bosque solo toma el <b>voto de la mayoría</b>. Añade más árboles y mira cómo los equivocados quedan en minoría.'));
+    var forest=el('div','forest'); host.appendChild(forest);
+    var tally=el('div','tally','<span class="tp"></span><span class="tn"></span>'); host.appendChild(tally);
+    var out=el('div','dreadout',''); host.appendChild(out);
+    var ctrls=el('div','ctrls');
+    var lab=el('label','ctl','Árboles: <b id="tc">15</b> <input type="range" min="1" max="31" step="2" value="15">');
+    var rr=el('button','dbtn','Volver a tirar');
+    ctrls.appendChild(lab); ctrls.appendChild(rr); host.appendChild(ctrls);
+    var slider=lab.querySelector('input'), tc=lab.querySelector('#tc');
+    var votes=[];
+    function roll(n){ votes=[]; for(var i=0;i<n;i++) votes.push(Math.random()<0.68?1:0); } // truth = POSITIVE, each tree 68% right
+    function draw(){
+      var n=+slider.value; tc.textContent=n; if(votes.length!==n) roll(n);
+      forest.innerHTML=''; var p=0;
+      votes.forEach(function(v){ p+=v; var t=el('div','ftree '+(v?'pos':'neg'), v?'✓':'✗'); forest.appendChild(t); });
+      var pr=Math.round(p/n*100);
+      tally.querySelector('.tp').style.width=pr+'%'; tally.querySelector('.tp').textContent=pr>14?p+' ✓':'';
+      tally.querySelector('.tn').style.width=(100-pr)+'%'; tally.querySelector('.tn').textContent=(100-pr)>14?(n-p)+' ✗':'';
+      var win = p> n/2 ? '<span class="pos">POSITIVE</span>' : '<span class="neg">NEGATIVE</span>';
+      out.innerHTML='Veredicto del bosque: '+win+'  ('+p+' vs '+(n-p)+').  La verdad es POSITIVO — un árbol solo acierta ~68% de las veces; el grupo mucho más.';
+    }
+    slider.addEventListener('input',function(){ roll(+slider.value); draw(); });
+    rr.addEventListener('click',function(){ roll(+slider.value); draw(); });
+    roll(+slider.value); draw(); return {};
+  };
+
+  /* ---- Neural Networks: order & context ---- */
+  DEMOS.nn=function(host){
+    host.appendChild(el('div','dlead','Los modelos simples tratan la reseña como una <b>bolsa de palabras</b> suelta — el orden no existe. Una red neuronal <b>lee en orden</b>, así que capta cosas como la negación. Elige una frase y compara.'));
+    var phrases=[
+      {t:'no está nada mal', bag:0, ctx:1, truth:1},
+      {t:'no muy bueno, la verdad', bag:1, ctx:0, truth:0},
+      {t:'me encanta totalmente', bag:1, ctx:1, truth:1},
+      {t:'terrible, servicio lento', bag:0, ctx:0, truth:0}
+    ];
+    var bb=el('div','phbtns'); phrases.forEach(function(p,i){ var b=el('button','ybtn'+(i===0?' chosen':''),'“'+p.t+'”'); b.dataset.i=i; bb.appendChild(b); }); host.appendChild(bb);
+    var row=el('div','nnrow');
+    row.innerHTML='<div class="nnpanel"><h5>Bolsa de palabras (p. ej. Naive Bayes)</h5><div class="vl" id="bagv"></div><div class="mk" id="bagm"></div></div>'+
+                  '<div class="nnpanel"><h5>Lee en orden (red neuronal)</h5><div class="vl" id="ctxv"></div><div class="mk" id="ctxm"></div></div>';
+    host.appendChild(row);
+    function show(i){
+      var p=phrases[i];
+      function set(vid,mid,val){ var v=document.getElementById(vid), m=document.getElementById(mid);
+        v.className='vl '+(val?'pos':'neg'); v.textContent=val?'POSITIVE':'NEGATIVE';
+        var ok=(val===p.truth); m.textContent=ok?'✓ coincide con el significado real':'✗ aquí se deja engañar'; }
+      set('bagv','bagm',p.bag); set('ctxv','ctxm',p.ctx);
+    }
+    bb.addEventListener('click',function(e){ var b=e.target.closest('.ybtn'); if(!b)return;
+      bb.querySelectorAll('.ybtn').forEach(function(x){x.classList.remove('chosen');}); b.classList.add('chosen'); show(+b.dataset.i); });
+    show(0);
+    host.appendChild(el('div','dreadout','Fíjate: con "no está mal" la bolsa de palabras ve la palabra <i>mal</i> y se equivoca — el modelo que lee en orden no.'));
+    return {};
+  };
+
+  /* ---- K-Means: centroids find the groups ---- */
+  DEMOS.km=function(host){
+    host.appendChild(el('div','dlead','Los puntos grises son reseñas <b>sin etiqueta</b>. K-Means coloca K centros al azar y repite: colorea cada punto por su centro más cercano, mueve cada centro al medio de sus puntos. Pulsa <b>Paso</b> y mira cómo encajan los grupos.'));
+    var cvo=mkCanvas(host,0.62); var W=cvo.W,H=cvo.H,ctx=cvo.ctx,pad=22;
+    var pts=[],cents=[],K=3,assigned=false;
+    var ctrls=el('div','ctrls');
+    var lab=el('label','ctl','K = <b id="kk">3</b> <input type="range" min="2" max="4" value="3">');
+    var step=el('button','dbtn primary','Paso'); var run=el('button','dbtn','Ejecutar'); var neu=el('button','dbtn','Puntos nuevos');
+    ctrls.appendChild(lab); ctrls.appendChild(step); ctrls.appendChild(run); ctrls.appendChild(neu); host.appendChild(ctrls);
+    var out=el('div','dreadout','Pulsa Paso para empezar.'); host.appendChild(out);
+    var slider=lab.querySelector('input'), kk=lab.querySelector('#kk');
+    function P(p){return [pad+p.x*(W-2*pad), pad+p.y*(H-2*pad)];}
+    function pal(){var c=C(); return [c.blue,c.accent,c.green,c.purple];}
+    function blobs(){
+      pts=[]; var centers=[[.28,.3],[.72,.35],[.5,.75],[.3,.72]];
+      for(var g=0; g<4; g++){ for(var i=0;i<10;i++){ pts.push({x:centers[g][0]+(Math.random()-.5)*.22, y:centers[g][1]+(Math.random()-.5)*.22, c:-1}); } }
+    }
+    function initCents(){ K=+slider.value; kk.textContent=K; cents=[]; var used={};
+      for(var i=0;i<K;i++){ var idx; do{idx=Math.floor(Math.random()*pts.length);}while(used[idx]); used[idx]=1; cents.push({x:pts[idx].x,y:pts[idx].y}); }
+      assigned=false; }
+    function assign(){ pts.forEach(function(p){ var bd=1e9,bi=0; cents.forEach(function(c,i){var d=(p.x-c.x)*(p.x-c.x)+(p.y-c.y)*(p.y-c.y); if(d<bd){bd=d;bi=i;}}); p.c=bi; }); assigned=true; }
+    function move(){ cents.forEach(function(c,i){ var sx=0,sy=0,n=0; pts.forEach(function(p){if(p.c===i){sx+=p.x;sy+=p.y;n++;}}); if(n){c.x=sx/n;c.y=sy/n;} }); }
+    function draw(){
+      var c=C(),cols=pal(); ctx.clearRect(0,0,W,H);
+      pts.forEach(function(p){ var q=P(p); ctx.fillStyle=p.c<0?c.soft:cols[p.c]; ctx.strokeStyle=c.ink; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.arc(q[0],q[1],5,0,7); ctx.fill(); ctx.stroke(); });
+      cents.forEach(function(ct,i){ var q=P(ct); ctx.fillStyle=cols[i]; ctx.strokeStyle=c.ink; ctx.lineWidth=2.5;
+        ctx.save(); ctx.translate(q[0],q[1]); ctx.rotate(Math.PI/4);
+        ctx.beginPath(); ctx.rect(-8,-8,16,16); ctx.fill(); ctx.stroke(); ctx.restore(); });
+    }
+    function doStep(){ if(!assigned){ assign(); out.textContent='Cada punto asignado a su centro más cercano.'; }
+      else { move(); assign(); out.textContent='Centros movidos al medio y reasignados. Sigue hasta que deje de cambiar.'; } draw(); }
+    step.addEventListener('click',doStep);
+    run.addEventListener('click',function(){ var i=0; var t=setInterval(function(){ doStep(); if(++i>=8)clearInterval(t); },450); });
+    neu.addEventListener('click',function(){ blobs(); initCents(); draw(); out.textContent='Puntos nuevos. Pulsa Paso.'; });
+    slider.addEventListener('input',function(){ initCents(); draw(); });
+    blobs(); initCents(); draw(); return {redraw:draw};
+  };
+
+  /* ---- LDA: a document as a mixture of topics ---- */
+  DEMOS.lda=function(host){
+    host.appendChild(el('div','dlead','LDA da a cada tema un color y luego pinta cada palabra. Un documento no se mete a la fuerza en una caja — sale como una <b>mezcla</b>. Pulsa un tema para resaltarlo en las tres reseñas.'));
+    var topics={delivery:'blue', price:'accent', service:'green'};
+    var tname={delivery:'Entrega', price:'Precio', service:'Servicio'};
+    var w2t={entrega:'delivery',pedido:'delivery','llegó':'delivery',tarde:'delivery',repartidor:'delivery','rápido':'delivery',precio:'price',barato:'price',caro:'price',calidad:'price',descuento:'price',soporte:'service',personal:'service',servicio:'service',ayuda:'service',reembolso:'service',grosero:'service'};
+    var docs=[
+      "la entrega llegó tarde pero el precio era barato",
+      "el servicio de soporte arregló mi reembolso gran servicio en general",
+      "el repartidor llegó rápido y la calidad precio era buena pero el personal fue grosero"
+    ];
+    var leg=el('div','lda-leg'); var active=null;
+    Object.keys(tname).forEach(function(t){
+      var s=el('span',null,'<i style="background:var(--'+ (topics[t]==='accent'?'accent':topics[t]==='blue'?'classify':'cluster') +')"></i>'+tname[t]);
+      s.dataset.t=t; leg.appendChild(s);
+    });
+    host.appendChild(leg);
+    var cont=el('div'); host.appendChild(cont);
+    function colVar(t){ return t==='price'?'var(--accent)':t==='delivery'?'var(--classify)':'var(--cluster)'; }
+    docs.forEach(function(d){
+      var counts={delivery:0,price:0,service:0}, html='';
+      d.split(' ').forEach(function(wd){ var t=w2t[wd.toLowerCase()];
+        if(t){ counts[t]++; html+='<w data-t="'+t+'" style="background:'+colVar(t)+';color:#fff">'+wd+'</w> '; }
+        else html+=wd+' '; });
+      var tot=counts.delivery+counts.price+counts.service||1;
+      var bar='';
+      ['delivery','price','service'].forEach(function(t){ var pc=counts[t]/tot*100; if(pc>0) bar+='<span style="width:'+pc+'%;background:'+colVar(t)+'"></span>'; });
+      var dv=el('div','ldoc','<div class="txt">'+html+'</div><div class="bar">'+bar+'</div>');
+      cont.appendChild(dv);
+    });
+    var out=el('div','dreadout','La primera reseña es una mezcla 50/50; la tercera mezcla las tres. Ese solapamiento es justo el sentido del topic modelling.'); host.appendChild(out);
+    leg.addEventListener('click',function(e){ var s=e.target.closest('span'); if(!s)return; var t=s.dataset.t;
+      active = active===t ? null : t;
+      cont.querySelectorAll('.ldoc').forEach(function(d){ d.classList.toggle('dim', !!active); });
+      if(active){ cont.querySelectorAll('w[data-t="'+active+'"]').forEach(function(w){ w.parentNode.parentNode.classList.remove('dim'); }); }
+    });
+    return {};
+  };
+
+  /* ===== the game ===== */
+  var ALG=['Naive Bayes','SVM','KNN','Decision Tree','Random Forest','Neural Networks','K-Means','LDA'];
+  var CASES=[
+    {co:'Glovo // Confianza y seguridad',q:'Filtrar reseñas falsas a gran escala',
+     task:'Entran millones de reseñas cada día. Ya tienes un gran montón etiquetado como <b>"falsa"</b> y <b>"real"</b>, y necesitas algo <span class="cue">rápido y barato para funcionar con volumen enorme</span> como primera línea de defensa.',
+     ans:'Naive Bayes',
+     ok:'El filtrado de spam es donde nació Naive Bayes, así que juega en casa. Es ligero y rápido para pasar por millones de elementos sin despeinarse — justo lo que quieres para una primera línea barata. Si más tarde se le escapan las falsas más difíciles, le añades algo más pesado encima.',
+     no:{'SVM':'Sería preciso, pero es más pesado y lento de lo que necesitas para una primera pasada barata sobre millones de reseñas.','Neural Networks':'Demasiada maquinaria, y demasiado cara, para un simple falsa-o-real cuando ya tienes montones de ejemplos etiquetados.','K-Means':'Eso es para descubrir grupos — pero ya TIENES tus etiquetas, así que no queda nada por descubrir aquí.','LDA':'Eso saca temas, no falsa-frente-a-real. Responde a una pregunta que nadie hizo.'}},
+
+    {co:'Zara // Escucha social',q:'¿De qué habla la gente en Twitter?',
+     task:'50.000 tuits mencionan a Zara este mes. <span class="cue">No tienes categorías ni etiquetas</span> — solo quieres saber qué temas repite la gente, sin leerlos uno a uno.',
+     ans:'LDA',
+     ok:'Esto es topic modelling en su forma más pura. No le dices a LDA qué buscar — lee todo el montón y te devuelve los temas que la gente repite: tallas, entregas, devoluciones, precios. Sin etiquetas, que es justo el punto cuando partes de cero.',
+     no:{'Naive Bayes':'Solo puede ordenar en etiquetas que tú le das, y aquí todavía no tienes ninguna. No hay nada en lo que clasificar.','K-Means':'Muy cerca, y una respuesta tentadora. Agruparía los tuits, pero no nombrará los TEMAS que los recorren — y ese nombrar es justo lo que añade el topic modelling.','Decision Tree':'Un clasificador — necesita categorías predefinidas para dividir, y no tienes ninguna.','SVM':'También un clasificador. No hay nada que separar hasta que ya conozcas tus categorías.'}},
+
+    {co:'BBVA // Cumplimiento',q:'Enrutar quejas que un regulador puede auditar',
+     task:'Los correos de quejas de préstamos deben enrutarse al equipo correcto automáticamente. El truco: un regulador puede presentarse y pedir <span class="cue">"explica exactamente POR QUÉ este fue a parar aquí".</span>',
+     ans:'Decision Tree',
+     ok:'Cuando un regulador puede llamar a tu puerta y preguntar "¿por qué esta decisión?", poder MOSTRAR el razonamiento gana a ser un poquito más preciso. Un único árbol de decisión es un diagrama que puedes leer en voz alta, paso a paso — y esa transparencia vale más aquí que el rendimiento puro.',
+     no:{'Random Forest':'Más preciso, sí — pero 300 árboles votando son una caja negra. Suerte explicándole una decisión concreta a un auditor.','SVM':'Preciso y completamente opaco. Falla el único requisito duro: explicar por qué.','Neural Networks':'La herramienta menos explicable que hay — justo lo contrario de lo que necesita cumplimiento.','KNN':'"Se parecía a estos cinco correos pasados" es algo flojo para decirle a un regulador. No es una justificación real.'}},
+
+    {co:'Mercadona // Insights',q:'Segmentos naturales en opiniones de clientes',
+     task:'Un año entero de opiniones y <span class="cue">sin categorías predefinidas</span>. Sospechas que hay grupos naturales de clientes ahí dentro y quieres que los datos los revelen, para nombrar tú los segmentos.',
+     ans:'K-Means',
+     ok:'Aún no existen categorías, así que dejas que hablen los datos. K-Means agrupa las opiniones por parecido, y luego TÚ miras cada grupo y decides cómo llamarlo — "estos se quejan de la entrega, estos son sensibles al precio". Eso es clustering de manual.',
+     no:{'LDA':'Encuentra temas dentro de los textos, no grupos de clientes. Una pregunta sutilmente distinta — cuidado aquí.','KNN':'Necesita etiquetas existentes de las que copiar, y no tienes ninguna.','Naive Bayes':'Supervisado — necesita justo las categorías que intentas descubrir. La pescadilla que se muerde la cola.','SVM':'Mismo problema: es supervisado, y todavía no tienes con qué entrenarlo.'}},
+
+    {co:'Cabify // Soporte',q:'Etiquetar un ticket por sus casos pasados más cercanos',
+     task:'Llega un ticket de soporte nuevo. Tienes miles de tickets pasados <b>ya etiquetados</b>, y quieres etiquetar el nuevo <span class="cue">buscando los tickets antiguos más parecidos</span> y copiando su etiqueta.',
+     ans:'KNN',
+     ok:'Esto es KNN descrito casi palabra por palabra: para etiquetar el ticket nuevo, busca sus vecinos más cercanos entre tus tickets etiquetados y copia lo que dicen. Así es como "búscame casos como este" se convierte en una etiqueta automática.',
+     no:{'K-Means':'Eso agrupa datos sin etiquetar. Aquí ya tienes etiquetas y un elemento nuevo concreto que etiquetar — otra situación.','Naive Bayes':'Un clasificador perfectamente válido, pero el caso dice literalmente "tickets pasados más parecidos" — y esa frase ES la definición de KNN.','LDA':'Encuentra temas en un montón; no pondrá una etiqueta a un ticket nuevo.','Decision Tree':'Podría valer, pero aquí nada pide reglas explicables. La pista es "más parecidos", y eso apunta directo a los vecinos.'}},
+
+    {co:'Wallapop // Catálogo',q:'Máxima precisión con texto de anuncios desordenado',
+     task:'Clasificar automáticamente millones de descripciones de anuncios desordenadas y escritas por usuarios. El texto es <span class="cue">ruidoso y de alta dimensión, quieres máxima robustez</span>, y nadie necesita explicar decisiones individuales.',
+     ans:'Random Forest',
+     ok:'El texto desordenado escrito por usuarios en montones de categorías es donde un solo árbol sufre y un bosque brilla. Cientos de árboles votando aguantan el ruido mucho mejor. Y como nadie necesita que expliques decisiones individuales, la única debilidad del bosque — ser difícil de interpretar — simplemente no muerde aquí.',
+     no:{'Decision Tree':'Un árbol es legible pero más débil y frágil con datos ruidosos. Cuando no necesitas la explicación, el bosque gana.','Naive Bayes':'Una línea base sólida, pero suele quedar por detrás de un ensemble con texto desordenado y de muchas categorías.','K-Means':'No supervisado — pero tienes categorías que predecir, no grupos que descubrir.','LDA':'Topic modelling, no ordenar en categorías conocidas. Trabajo equivocado.'}},
+
+    {co:'Glovo // Operaciones globales',q:'Traducción + sentimiento multilingüe con matices',
+     task:'Las reseñas llegan en español, catalán, árabe y más. Necesitas <span class="cue">traducirlas y leer un sentimiento sutil que depende del contexto</span> — donde "no está nada mal" significa en realidad algo positivo. Presupuesto y GPUs no son problema.',
+     ans:'Neural Networks',
+     ok:'Traducir, y leer entre líneas — que "no está nada mal" significa algo bueno — es justo donde el deep learning se gana el sueldo. Entiende el orden de las palabras y el contexto como los métodos simples no pueden, y como el presupuesto y las GPUs no son problema, este es el momento de sacar la maquinaria pesada.',
+     no:{'Naive Bayes':'Trata las palabras como una bolsa sin orden, así que se pierde por completo cosas como "no está nada mal".','SVM':'Bien para sentimiento sencillo, pero nunca se diseñó para traducción ni contexto profundo.','Decision Tree':'Un puñado de reglas sí/no no captura los matices reales del lenguaje en varios idiomas.','LDA':'Saca temas; no traduce ni lee sentimiento sutil.'}},
+
+    {co:'Mango // Reseñas de producto',q:'Separación nítida positivo/negativo, pocos datos',
+     task:'Tienes un conjunto <b>modesto, limpio y etiquetado</b> de reseñas y quieres un <span class="cue">clasificador positivo-frente-a-negativo fuerte y preciso con un margen claro</span> entre los dos. No necesitas explicar las decisiones.',
+     ans:'SVM',
+     ok:'Dos clases claras, datos limpios y etiquetados, precisión por encima de explicabilidad — este es el punto fuerte de SVM. Talla el hueco más ancho y limpio entre positivo y negativo, y lo hace especialmente bien cuando el conjunto es modesto y no enorme.',
+     no:{'Naive Bayes':'Una base decente, pero cuando la línea entre clases es limpia, SVM suele exprimir algo más de precisión.','Random Forest':'Brillante con datos ruidosos y de alta dimensión — pero en un problema pequeño, limpio y de dos clases, la separación nítida de SVM encaja mejor.','Neural Networks':'Demasiada maquinaria, y demasiado hambrienta de datos, para una tarea binaria pequeña y ordenada como esta.','K-Means':'No supervisado — tiraría a la basura las etiquetas que ya tienes.'}}
+  ];
+
+  var gbody=document.getElementById('gbody'), nextBtn=document.getElementById('next'),
+      progEl=document.getElementById('prog'), scoreEl=document.getElementById('score'),
+      resultEl=document.getElementById('result');
+  var idx=0, score=0, answered=false;
+
+  function render(){
+    answered=false;
+    var c=CASES[idx];
+    progEl.textContent='Caso '+(idx+1)+' de '+CASES.length;
+    var opts=ALG.map(function(a,i){
+      var key=String.fromCharCode(65+i);
+      return '<button class="opt" data-alg="'+a+'"><span class="k">'+key+'</span>'+a+'</button>';
+    }).join('');
+    gbody.innerHTML=
+      '<div class="case"><div class="co">'+c.co+'</div><h3>'+c.q+'</h3>'+
+      '<p class="task">'+c.task+'</p>'+
+      '<div class="opts">'+opts+'</div>'+
+      '<div class="verdict" id="verdict"></div></div>';
+    nextBtn.classList.remove('show');
+    nextBtn.textContent = idx===CASES.length-1 ? 'Ver tu resultado →' : 'Siguiente caso →';
+    Array.prototype.forEach.call(gbody.querySelectorAll('.opt'),function(btn){ btn.addEventListener('click',onPick); });
+  }
+  function onPick(e){
+    if(answered)return; answered=true;
+    var c=CASES[idx], chosen=e.currentTarget.getAttribute('data-alg'), correct=(chosen===c.ans);
+    if(correct){score++; scoreEl.textContent=score;}
+    Array.prototype.forEach.call(gbody.querySelectorAll('.opt'),function(btn){
+      var a=btn.getAttribute('data-alg'); btn.disabled=true;
+      if(a===c.ans)btn.classList.add('correct'); else if(a===chosen)btn.classList.add('wrong'); else btn.classList.add('dim');
+    });
+    var v=document.getElementById('verdict');
+    if(correct){ v.className='verdict ok show'; v.innerHTML='<div class="vhead">✓ Herramienta correcta — '+c.ans+'</div><p>'+c.ok+'</p>'; }
+    else{ var why=c.no[chosen]||'No es la mejor opción para esta pista.'; v.className='verdict no show';
+      v.innerHTML='<div class="vhead">✗ '+chosen+' encaja peor aquí</div><p><b>'+chosen+':</b> '+why+'</p><p><b>Mejor opción → '+c.ans+'.</b> '+c.ok+'</p>'; }
+    nextBtn.classList.add('show');
+  }
+  nextBtn.addEventListener('click',function(){ if(idx<CASES.length-1){idx++; render();} else{showResult();} });
+  function showResult(){
+    gbody.style.display='none'; nextBtn.style.display='none'; progEl.textContent='Hecho';
+    resultEl.classList.add('show'); document.getElementById('finalscore').textContent=score+'/'+CASES.length;
+    var head, text;
+    if(score===8){head='Impecable — eliges como un profesional.';text='No solo memorizaste nombres, encajaste cada herramienta con lo que el caso de verdad necesitaba. Ese es justo el razonamiento que busca tu defensa oral.';}
+    else if(score>=6){head='Fuerte — los tres trabajos te están cuajando.';text='Tienes los trabajos y casi todas las personalidades. Vuelve a los dos que fallaste; la respuesta estaba ahí mismo, en las palabras resaltadas.';}
+    else if(score>=4){head='Vas llegando.';text='Ánclate primero en los tres trabajos — clasificar, agrupar, descubrir. Cuando eso sea automático, los seis clasificadores se ordenan solos según lo que pide cada caso.';}
+    else{head='Merece otra vuelta.';text='Empieza siempre por la pregunta. ¿Etiquetas conocidas? Clasificar. ¿Sin etiquetas pero quieres grupos? Agrupar. ¿Solo quieres los temas? Descubrir. Luego deja que la pista elija la personalidad.';}
+    document.getElementById('finalhead').textContent=head; document.getElementById('finaltext').textContent=text;
+  }
+  document.getElementById('replay').addEventListener('click',function(){
+    idx=0; score=0; scoreEl.textContent='0'; resultEl.classList.remove('show'); gbody.style.display=''; nextBtn.style.display=''; render();
+  });
+  render();
+
+  /* ===== cheat sheet ===== */
+  var CHEAT=[
+    {cls:'classify',iff:'Tienes las etiquetas + lo necesitas rápido y barato',then:'Naive Bayes',tag:'clasificar'},
+    {cls:'classify',iff:'Dos clases limpias, quieres máxima precisión',then:'SVM',tag:'clasificar'},
+    {cls:'classify',iff:'"Encuentra casos como este"',then:'KNN',tag:'clasificar'},
+    {cls:'classify',iff:'Debes explicar cada decisión',then:'Decision Tree',tag:'clasificar'},
+    {cls:'classify',iff:'Desordenado, alta dimensión, precisión sobre claridad',then:'Random Forest',tag:'clasificar'},
+    {cls:'classify',iff:'Traducción o significado profundo y matizado',then:'Neural Networks',tag:'clasificar'},
+    {cls:'cluster',iff:'Sin etiquetas, quieres los grupos naturales',then:'K-Means',tag:'agrupar'},
+    {cls:'discover',iff:'Sin etiquetas, quieres los temas ocultos',then:'LDA',tag:'descubrir'}
+  ];
+  var ch=document.getElementById('cheats');
+  CHEAT.forEach(function(c){
+    ch.insertAdjacentHTML('beforeend',
+      '<div class="cheat '+c.cls+'"><div class="if">SI // '+c.iff+'</div><div class="then"><span class="chip">'+c.tag+'</span>'+c.then+'</div></div>');
+  });
+})();
+</script>
+
+<!-- ===== live vote (Upstash Redis REST; votes auto-delete after 24h; works on your own site) ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var UPSTASH = { url: "https://normal-grouse-241083.upstash.io", token: "gQAAAAAAA627AAIgcDI0N2Y1ZTYxNGFmNTE0MDg0OWI4MDRkNDk1NWY5NmU1Yg" };
+
+  var JOBS=["Clasificar","Agrupar","Descubrir"];
+  var METHODS=["Naive Bayes","SVM","KNN","Decision Tree","Random Forest","Neural Networks","K-Means","LDA"];
+  var Q=[
+    {co:"Calentamiento / nombra el trabajo",t:"CaixaBank tiene 3.000 reseñas ya etiquetadas como bug / mejora / elogio y quiere etiquetar las nuevas igual.",opts:JOBS,ans:0,why:"Ya existen etiquetas — ordena texto nuevo en cajas conocidas."},
+    {co:"Calentamiento / nombra el trabajo",t:"El Corte Inglés tiene 80.000 tuits, sin categorías, y solo quiere saber de qué habla la gente.",opts:JOBS,ans:2,why:"Sin etiquetas, y el objetivo son los temas en sí — Descubrir."},
+    {co:"Calentamiento / nombra el trabajo",t:"SEAT tiene textos de garantía, sin categorías, y quiere encontrar grupos naturales de problemas para luego investigarlos.",opts:JOBS,ans:1,why:"Sin etiquetas; deja que los datos formen grupos que el equipo nombrará — Agrupar."},
+    {co:"Idealista / Confianza y seguridad",t:"Marcar anuncios probablemente falsos de forma barata y a gran volumen, con muchos ejemplos etiquetados falso / real.",opts:METHODS,ans:0,why:"Volumen enorme, etiquetas en mano, barato y rápido — la línea base del filtro de spam."},
+    {co:"Freixenet / Reseñas",t:"Un conjunto pequeño, limpio y etiquetado; quieres la separación positivo-vs-negativo más precisa. No hay que explicarla.",opts:METHODS,ans:1,why:"Pocos datos limpios de dos clases, precisión sobre explicabilidad — el margen limpio más ancho."},
+    {co:"Soporte",t:"Etiquetar cada ticket nuevo buscando los tickets pasados ya etiquetados más parecidos y copiando su categoría.",opts:METHODS,ans:2,why:"“Los casos pasados más parecidos” es la definición de vecinos más cercanos."},
+    {co:"Banco Sabadell / Cumplimiento",t:"Enrutar quejas automáticamente, y un regulador puede exigir la razón exacta de cualquier decisión.",opts:METHODS,ans:3,why:"Debes explicar cada decisión — un diagrama legible gana a una caja negra."},
+    {co:"Milanuncios / Catálogo",t:"Clasificar millones de anuncios desordenados en 40 categorías, máxima precisión, sin explicar cada decisión.",opts:METHODS,ans:4,why:"Ruidoso, alta dimensión, muchas clases, precisión primero — un comité de árboles."},
+    {co:"Plataforma de viajes / Global",t:"Traducir reseñas de seis idiomas y captar la negación como “no está nada mal”. Presupuesto y GPUs no son problema.",opts:METHODS,ans:5,why:"Traducción y matiz del orden de palabras — la maquinaria pesada se gana su coste."},
+    {co:"Mango / Marketing",t:"Un año de opiniones sin etiquetar; quieres unos pocos segmentos naturales de clientes para nombrar y enfocar.",opts:METHODS,ans:6,why:"Sin etiquetas; forma los grupos por parecido y el equipo los nombra."},
+    {co:"Vueling / Social",t:"Temas recurrentes en 120.000 tuits sin etiquetar, donde un tuit puede tocar varios temas a la vez.",opts:METHODS,ans:7,why:"Sin etiquetas, y un texto puede pertenecer a varios temas a la vez — topic modelling."},
+    {co:"Debate / para el final",t:"Enrutar quejas que debes justificar: ¿Random Forest por precisión, o un único Decision Tree? ¿Cuál es correcto?",opts:METHODS,ans:3,why:"Cuando debes explicar cada decisión, la interpretabilidad gana a la precisión extra."}
+  ];
+
+  var panel=document.getElementById('lvPanel'), connEl=document.getElementById('lvConn'),
+      setupEl=document.getElementById('lvSetup'), roleBtns=document.querySelectorAll('.lv-rolebtn');
+  if(!panel) return;
+
+  var role = /^#(profesor|teacher|present)/i.test(location.hash) ? 'teacher' : 'student';
+  function markRole(){ roleBtns.forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-role')===role); }); }
+  roleBtns.forEach(function(b){ b.addEventListener('click',function(){ role=b.getAttribute('data-role'); markRole(); render(); }); });
+  markRole();
+
+  var MYID; try{ MYID=localStorage.getItem('tmv-id'); if(!MYID){MYID='v'+Math.random().toString(36).slice(2,10);localStorage.setItem('tmv-id',MYID);} }catch(e){ MYID='v'+Math.random().toString(36).slice(2,10); }
+  function setConn(ok,label){ connEl.classList.toggle('off',!ok); connEl.innerHTML='● <b>'+label+'</b>'; }
+
+  var configured = !!(UPSTASH.url && UPSTASH.token);
+  if(!configured){ setConn(false,'demo local'); } else { setConn(true,'listo'); }
+
+  var estado={q:0,revealed:false};   // local to THIS device (teacher calls out the number)
+  var votes={};                      // teacher: {key:choice} for the current question, from the store
+  var myVotes={};                    // student: {q:choice} this device has cast
+
+  function L(i){ return String.fromCharCode(65+i); }
+  function keyFor(q,id){ return 'tmv:'+q+':'+id; }
+  function prefix(q){ return 'tmv:'+q+':'; }
+
+  /* ---- Upstash Redis REST (one token in the page = classroom-level access; fine for a lesson) ---- */
+  function redis(cmd){
+    return fetch(UPSTASH.url,{method:'POST',headers:{'Authorization':'Bearer '+UPSTASH.token,'Content-Type':'application/json'},body:JSON.stringify(cmd)})
+      .then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.json(); }).then(function(j){ return j.result; });
+  }
+  function scanKeys(match){
+    var out=[]; function step(cur){ return redis(['SCAN',cur,'MATCH',match,'COUNT','500']).then(function(res){ var next=(res&&res[0])||'0', ks=(res&&res[1])||[]; out=out.concat(ks); if(next!=='0'&&next!==0) return step(next); return out; }); } return step('0');
+  }
+  function fetchVotes(){
+    if(!configured) return Promise.resolve();
+    return scanKeys(prefix(estado.q)+'*').then(function(keys){
+      if(!keys.length){ votes={}; return; }
+      return redis(['MGET'].concat(keys)).then(function(vals){ var m={}; keys.forEach(function(k,i){ if(vals[i]!=null) m[k]=+vals[i]; }); votes=m; });
+    }).then(function(){ setConn(true,'en vivo'); }, function(){ setConn(false,'sin conexión'); });
+  }
+  function castVote(choice){
+    myVotes[estado.q]=choice; render();
+    if(configured){ redis(['SET',keyFor(estado.q,MYID),String(choice),'EX','86400']).then(function(){ setConn(true,'enviado'); }, function(){ setConn(false,'sin conexión'); }); }
+    else { votes[MYID]=choice; }
+  }
+  function resetVotes(){
+    if(!configured){ votes={}; paintBars(); return; }
+    scanKeys(prefix(estado.q)+'*').then(function(keys){ if(keys.length) return redis(['DEL'].concat(keys)); }).then(function(){ votes={}; paintBars(); }, function(){});
+  }
+
+  /* ---- teacher poll: refresh the bars every 2 s (near real-time, light on the free tier) ---- */
+  var pollTimer=null;
+  function startPoll(){ if(pollTimer||!configured) return; pollTimer=setInterval(function(){ if(role==='teacher') fetchVotes().then(paintBars); },2000); }
+
+  function tally(){ var c=new Array(Q[estado.q].opts.length).fill(0); Object.keys(votes).forEach(function(k){ var v=votes[k]; if(v>=0&&v<c.length)c[v]++; }); return {c:c,total:c.reduce(function(a,b){return a+b;},0)}; }
+
+  function renderTeacher(){
+    var q=Q[estado.q], studentURL=location.origin+location.pathname+'#votar';
+    panel.innerHTML=
+      '<div class="lv-join"><div class="lqr" id="lvqr"></div></div>'+
+      '<h3 class="lv-qt">'+q.t+'</h3>'+
+      '<div class="lv-bars" id="lvBars"></div>'+
+      '<div class="lv-why" id="lvWhy"><div class="wh">✓ Respuesta — '+q.opts[q.ans]+'</div>'+q.why+'</div>'+
+      '<div class="lv-meta"><span>VOTOS <b id="lvCount">0</b></span><span id="lvQn">Q '+(estado.q+1)+'/'+Q.length+'</span></div>'+
+      '<div class="lv-ctrls">'+
+        '<button class="lv-btn" id="lvPrev"'+(estado.q===0?' disabled':'')+'>◀ Anterior</button>'+
+        '<button class="lv-btn primary" id="lvNext"'+(estado.q===Q.length-1?' disabled':'')+'>Siguiente ▶</button>'+
+        '<button class="lv-btn" id="lvRev">'+(estado.revealed?'Ocultar respuesta':'Mostrar respuesta')+'</button>'+
+        '<button class="lv-btn ghost" id="lvReset">Borrar esta votación</button>'+
+        '<button class="lv-btn ghost" id="lvFull">⛶ Pantalla completa</button>'+
+      '</div>';
+    try{ if(window.QRCode){ new QRCode(document.getElementById('lvqr'),{text:studentURL,width:108,height:108,correctLevel:QRCode.CorrectLevel.M}); } }catch(e){}
+    function go(d){ estado.q=Math.min(Q.length-1,Math.max(0,estado.q+d)); estado.revealed=false; votes={}; renderTeacher(); fetchVotes().then(paintBars); }
+    document.getElementById('lvPrev').onclick=function(){ go(-1); };
+    document.getElementById('lvNext').onclick=function(){ go(1); };
+    document.getElementById('lvRev').onclick=function(){ estado.revealed=!estado.revealed; renderTeacher(); paintBars(); };
+    document.getElementById('lvReset').onclick=resetVotes;
+    document.getElementById('lvFull').onclick=function(){ if(panel.requestFullscreen) panel.requestFullscreen().catch(function(){}); };
+    paintBars();
+  }
+  function paintBars(){
+    if(role!=='teacher') return;
+    var barsEl=document.getElementById('lvBars'); if(!barsEl) return;
+    var q=Q[estado.q], r=tally(), html='';
+    q.opts.forEach(function(o,i){ var n=r.c[i], pct=r.total?Math.round(n/r.total*100):0, ok=estado.revealed&&i===q.ans;
+      html+='<div class="lv-bar'+(ok?' correct':'')+'"><div class="lf" style="width:'+(r.total?pct:0)+'%"></div>'+
+        '<div class="lr"><span class="lk">'+L(i)+'</span><span class="ll">'+o+'</span><span class="ln">'+n+'</span><span class="lp">'+(r.total?pct+'%':'')+'</span></div></div>'; });
+    barsEl.innerHTML=html;
+    var c=document.getElementById('lvCount'); if(c) c.textContent=r.total;
+    var w=document.getElementById('lvWhy'); if(w) w.classList.toggle('show',estado.revealed);
+  }
+
+  function renderStudent(){
+    var q=Q[estado.q], mine=(myVotes[estado.q]!=null)?myVotes[estado.q]:null, opts='';
+    q.opts.forEach(function(o,i){ var isMine=mine===i, ok=estado.revealed&&i===q.ans;
+      opts+='<button class="lv-opt'+(isMine?' mine':'')+(ok?' correct':'')+'" data-i="'+i+'"'+(estado.revealed?' disabled':'')+'><span class="lk">'+L(i)+'</span>'+o+'</button>'; });
+    var note;
+    if(estado.revealed){ var right=mine===q.ans; note='<div class="lv-note"><b>'+(mine==null?'Sin voto registrado.':(right?'✓ ¡Acertaste!':'✗ Esta vez no.'))+'</b> Respuesta: <b>'+q.opts[q.ans]+'</b>. '+q.why+'</div>'; }
+    else if(mine!=null){ note='<div class="lv-note"><b>Respuesta enviada: '+q.opts[mine]+'.</b> Toca otra opción para cambiarla. Revisamos la respuesta juntos en la pantalla.</div>'; }
+    else { note=''; }
+    panel.innerHTML=
+      '<div class="lv-qco">'+q.co+' / Pregunta '+(estado.q+1)+' de '+Q.length+'</div>'+
+      '<h3 class="lv-qt">'+q.t+'</h3><div class="lv-opts">'+opts+'</div>'+note+
+      '<div class="lv-ctrls">'+
+        '<button class="lv-btn" id="lvsPrev"'+(estado.q===0?' disabled':'')+'>◀ Anterior</button>'+
+        '<button class="lv-btn primary" id="lvsNext"'+(estado.q===Q.length-1?' disabled':'')+'>Siguiente ▶</button>'+
+      '</div>';
+    Array.prototype.forEach.call(panel.querySelectorAll('.lv-opt'),function(b){ b.onclick=function(){ castVote(+b.getAttribute('data-i')); }; });
+    document.getElementById('lvsPrev').onclick=function(){ estado.q=Math.max(0,estado.q-1); render(); };
+    document.getElementById('lvsNext').onclick=function(){ estado.q=Math.min(Q.length-1,estado.q+1); render(); };
+  }
+
+  function render(){ if(role==='teacher') renderTeacher(); else renderStudent(); }
+  function enter(){ render(); if(role==='teacher'){ startPoll(); fetchVotes().then(paintBars); } }
+  enter();
+})();
+</script>
+
+</body>
+</html>
